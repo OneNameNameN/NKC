@@ -69,9 +69,15 @@ DoublePS        \/\*(.|\n)*\*\/
 [ \t]+  {}
 
 %%
-int main(){
-	yylex();
-	return 0;
+int main(int argc,char ** argv){
+    if(argc>=2){
+        if((yyin=fopen(argv[1],"r"))==NULL){
+            printf("Can't open file %s\n",argv[1]);
+            return 1;
+        }
+    }else return 0;
+    yylex();
+    return 0;
 }
 int yywrap(){
 	return 1;
