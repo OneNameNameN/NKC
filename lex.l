@@ -1,14 +1,30 @@
 %{  
-     #include<stdio.h>
-     #include<stdlib.h>
-     #include<string.h>
-     int line=1;
+	#include <stdio.h>
+
+	#include "y.tab.h"
 %}
-LETTER          [a-zA-Z]
-ID              ({LETTER}|_)({LETTER}|_|{DIGIT})* 
-COMPARISON      ("<"|"<="|"=="|"<>"|"!="|">"|">=")
-OE              ("+="|"-="|"*="|"/=")
-OO              ("++"|"--")           
+LETTER      [a-zA-Z]
+ID          ({LETTER}|_)({LETTER}|_|{DIGIT})* 
+OPT         ("+"|"-"|"*"|"/"|"+="|"-="|"*="|"/="|"++"|"--") 
+LT          ("<")
+LE          ("<=")
+EQ          ("==")
+NE          ("<>")
+GT          (">")
+GE          (">=")
+ASSIGN      ("=")
+LNOT        ("!")
+LP          ("(")
+RP          (")")
+LBRACKET    ("[")
+RBRACKET    ("]")
+LBRACE      ("{")
+RBRACE      ("}")
+SEMICOLON   (";")
+COMMA       (",")
+SINGLEQUOTES    ("\'")
+DOUBLEQUOTES    ("\"")
+WELLSIGN        ("#")
 DIGIT           [0-9]
 DIGITS          {DIGIT}+
 OINTEGER        0|[1-9]{DIGIT}*
@@ -17,55 +33,40 @@ DECIMAL         {INTEGER}(.{DIGITS})
 FLOAT           {INTEGER}(.{DIGITS})?[Ee]{INTEGER}
 ERRORFLOAT      ([0-9])*+[.](0-9)*+[Ee]
 TYPE            void|int|double|char|float
-KEYWORD         if|else|do|while|for|scanf|printf|sqrt|abs|main|return
+KEYWORD         if|else|do|while|for|scanf|printf|sqrt|abs|main
+RETURN         return
 TYPEIDENTIFY    %d|%c|%s|%f|&{ID}
-PS              (\/\/.*)|(\/\*(.|\n)*\*\/)
+SinglePS        \/\/.*
+DoublePS        \/\*(.|\n)*\*\/ 
 
 %%
-\n   {++line;}
-{TYPE}              {printf("line%d:(type, %s)\n",                  line,yytext);}
-{KEYWORD}           {printf("line%d:(keyword, %s)\n",               line,yytext);}
-{ID}                {printf("line%d:(identity, %s)\n",              line,yytext);}
-"("                 {printf("line%d:(left parenthesis, %s)\n",      line,yytext);}
-")"                 {printf("line%d:(right parenthesis, %s)\n",     line,yytext);}
-"["                 {printf("line%d:(left bracket, %s)\n",          line,yytext);}
-"]"                 {printf("line%d:(right bracket, %s)\n",         line,yytext);}
-"{"                 {printf("line%d:(left brace, %s)\n",            line,yytext);}
-"}"                 {printf("line%d:(right brace, %s)\n",           line,yytext);}
-";"                 {printf("line%d:(semicolon, %s)\n",             line,yytext);}
-","                 {printf("line%d:(comma, %s)\n",                 line,yytext);}
-"\'"                {printf("line%d:(singlequotes, %s)\n",          line,yytext);}
-"\""                {printf("line%d:(doublequotes, %s)\n",          line,yytext);}
-"#"                 {printf("line%d:(wellsign, %s)\n",              line,yytext);}
-"="                 {printf("line%d:(assign, %s)\n",                line,yytext);}
-"+"                 {printf("line%d:(add, %s)\n",                   line,yytext);}
-"-"                 {printf("line%d:(subtract, %s)\n",              line,yytext);}
-"*"                 {printf("line%d:(multiply, %s)\n",              line,yytext);}
-"/"                 {printf("line%d:(divide, %s)\n",                line,yytext);}
-"!"                 {printf("line%d:(left not, %s)\n",              line,yytext);}
-{COMPARISON}        {printf("line%d:(comparison, %s)\n",            line,yytext);}
-{OE}                {printf("line%d:(operator equal, %s)\n",        line,yytext);}
-{OO}                {printf("line%d:(operator operator, %s)\n",     line,yytext);}
-{INTEGER}           {printf("line%d:(integer, %s)\n",               line,yytext);}
-{DECIMAL}           {printf("line%d:(decimal, %s)\n",               line,yytext);}
-{FLOAT}             {printf("line%d:(float, %s)\n",                 line,yytext);}
-{TYPEIDENTIFY}      {printf("line%d:(typeidentify, %s)\n",          line,yytext);}
-{ERRORFLOAT}        {printf("errorfloat\n");}
-{PS}                {printf("post scriptum\n");}
+\n   {}
+{TYPE}                          {yylval = createNewEndNode("TYPE",strdup(yytext));printf("TYPE");}return(TYPE);
+{KEYWORD}                       {yylval = createNewEndNode("KEYWORD",strdup(yytext));}return(KEYWORD);
+{RETURN}                       {yylval = createNewEndNode("RETURN",strdup(yytext));}return(RETURN);
+{ID}                            {yylval = createNewEndNode("ID",strdup(yytext));}return(ID);
+{LP}                            {yylval = createNewEndNode("LP",strdup(yytext));}return(LP);
+{RP}                            {yylval = createNewEndNode("RP",strdup(yytext));}return(RP);
+{LBRACKET}                      {yylval = createNewEndNode("LBRACKET",strdup(yytext));}return(LBRACKET);
+{RBRACKET}                      {yylval = createNewEndNode("RBRACKET",strdup(yytext));}return(RBRACKET);
+{LBRACE}                        {yylval = createNewEndNode("LBRACE",strdup(yytext));}return(LBRACE);
+{RBRACE}                        {yylval = createNewEndNode("RBRACE",strdup(yytext));}return(RBRACE);
+{SEMICOLON}                     {yylval = createNewEndNode("SEMICOLON",strdup(yytext));}return(SEMICOLON);
+{COMMA}                         {yylval = createNewEndNode("COMMA",strdup(yytext));}return(COMMA);
+{SINGLEQUOTES}                  {yylval = createNewEndNode("SINGLEQUOTES",strdup(yytext));}return(SINGLEQUOTES);
+{DOUBLEQUOTES}                  {yylval = createNewEndNode("DOUBLEQUOTES",strdup(yytext));}return(DOUBLEQUOTES);
+{WELLSIGN}                      {yylval = createNewEndNode("WELLSIGN",strdup(yytext));}return(WELLSIGN);
+{OPT}                           {yylval = createNewEndNode("OPT",strdup(yytext));}return(OPT);
+({LT}|{LE}|{EQ}|{NE}|{GT}|{GE}) {yylval = createNewEndNode("COMPARISION",strdup(yytext));}return(COMPARISION);
+{ASSIGN}                        {yylval = createNewEndNode("ASSIGN",strdup(yytext));}return(ASSIGN);
+{LNOT}                          {yylval = createNewEndNode("LNOT",strdup(yytext));}return(LNOT);
+{INTEGER}                       {yylval = createNewEndNode("INTEGER",strdup(yytext));}return(INTEGER);
+{DECIMAL}                       {yylval = createNewEndNode("DECIMAL",strdup(yytext));}return(DECIMAL);
+{FLOAT}                         {yylval = createNewEndNode("FLOAT",strdup(yytext));}return(FLOAT);
+{TYPEIDENTIFY}                  {yylval = createNewEndNode("TYPEIDENTIFY",strdup(yytext));}return(TYPEIDENTIFY);
+{ERRORFLOAT}                    {yylval = createNewEndNode("ERRORFLOAT",strdup(yytext));}return(ERRORFLOAT);
+({SinglePS}|{DoublePS})         {yylval = createNewEndNode("PS",strdup(yytext));}return(PS);
 .       {}
 [ \t]+  {}
 
 %%
-int main(int argc,char ** argv){
-    if(argc>=2){
-        if((yyin=fopen(argv[1],"r"))==NULL){
-            printf("Can't open file %s\n",argv[1]);
-            return 1;
-        }
-    }else return 0;
-    yylex();
-    return 0;
-}
-int yywrap(){
-     return 1;
-}
