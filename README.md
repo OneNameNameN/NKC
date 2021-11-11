@@ -9,3 +9,8 @@
 
 /test    包含测试样例
 
+## 生成语法分析器可执行文件
+
+1. 进入/lexical目录
+2. make(linux) mingw32-make(windows)
+3. nkc>result.txt可在result.txt看到分析结果

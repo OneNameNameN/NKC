@@ -1,3 +1,8 @@
 .DS_Store
 .idea
 .vscode
+lex.yy.c
+nkc.tab.h
+nkc.tab.c
+nkc.exe
+m4.exe
