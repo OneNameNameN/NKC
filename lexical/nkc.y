@@ -2,6 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "../grammer/nkc.h"
+    #include "../grammer/symbolTable.h"
 
     int yylex();
     int yyerror(char *);

@@ -5,6 +5,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include "../grammer/nkc.h"
+    #include "../grammer/symbolTable.h"
     #include "nkc.tab.h"
 %}
 
