@@ -63,6 +63,9 @@ $$->addNode(new BaseNode("ID",$2));
 $$ = new BaseNode("statement");
 $$->addNode($1);
 }
+| WHILE '(' expression ')' statement{
+$$ = new WhileNode($3,$5);
+}
 ;
 
 expression: ID{

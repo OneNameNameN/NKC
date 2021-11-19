@@ -6,10 +6,11 @@
 #include "StatementBlockNode.h"
 class WhileNode:public AbstractNode{
 public:
-    ExpressionNode* expressionNode;
+    AbstractNode* expressionNode;
     AbstractNode* statementBlockNode;
-    WhileNode(ExpressionNode* expressionNode,AbstractNode* statementBlockNode);
+    WhileNode(AbstractNode* expressionNode,AbstractNode* statementBlockNode);
     void printInfo(int deep);
+    void createSymbolTable();
 };
 
 #endif

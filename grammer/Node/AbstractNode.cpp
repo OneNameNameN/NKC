@@ -24,3 +24,8 @@ void AbstractNode::printInfo(int deep){
         printf("| ");
     cout<< this->value<<"\n";
 }
+void AbstractNode::createSymbolTable() {
+    if(cousin != nullptr) cousin->createSymbolTable();
+    // solve symbol table
+    if(son != nullptr) son->createSymbolTable();
+}

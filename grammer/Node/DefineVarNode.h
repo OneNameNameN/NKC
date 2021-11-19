@@ -8,6 +8,7 @@ public:
     AbstractNode* defineListNode;
     DefineVarNode(string varType,AbstractNode* defineListNode);
     void printInfo(int deep);
+    void createSymbolTable();
 };
 
 #endif

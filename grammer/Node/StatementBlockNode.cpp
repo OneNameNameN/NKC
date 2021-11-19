@@ -1,6 +1,5 @@
 #include "StatementBlockNode.h"
 StatementBlockNode::StatementBlockNode(AbstractNode* statementsNode){
-    classType = StatementBlockNodeClass;
     this->value = "StatementBlockNode";
     this->statementsNode = statementsNode;
 }

@@ -1,13 +1,9 @@
 #include "symbolTable.h"
 
-bool SymbolTable::insert(string name,int type,int modifier,int describe){
+bool SymbolTable::insert(string name,string type,int modifier,int describe){
     if(varTable[name]!= nullptr){
         int length;
-        switch (type) {
-            case 0: length = 4;break;
-            case 1: length = 8;break;
-            default:return false;
-        }
+        length = 4;
         varTable[name] = new varStruct(name,type,modifier,describe,address,length);
         address+=length;
         return true;
@@ -43,7 +39,7 @@ bool SymbolTable::endSpace(){
     return false;
 }
 
-varStruct::varStruct(string n,int type,int m,int d,int adr,int len){
+varStruct::varStruct(string n,string type,int m,int d,int adr,int len){
     this->name = n;
     this->type = type;
     this->modifier = m;

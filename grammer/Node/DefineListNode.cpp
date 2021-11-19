@@ -1,12 +1,10 @@
 #include "DefineListNode.h"
 DefineListNode::DefineListNode(AbstractNode* define){
     this->value = "DefineListNode";
-    classType = DefineListNodeClass;
     this->define = define;
     this->defineListNode = nullptr;
 }
 DefineListNode::DefineListNode(AbstractNode* define, AbstractNode* defineListNode){
-    classType = DefineListNodeClass;
     this->value = "DefineListNode";
     this->define = define;
     this->defineListNode = defineListNode;

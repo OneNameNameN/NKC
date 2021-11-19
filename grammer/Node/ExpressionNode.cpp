@@ -2,13 +2,11 @@
 
 ExpressionNode::ExpressionNode(AbstractNode* node){
     value = "ExpressionNode";
-    classType = ExpressionNodeClass;
     expressionType = NumberOrID;
     this->node = node;
 }
 ExpressionNode::ExpressionNode(AbstractNode* node,int expressionType,AbstractNode* expressionNode,string oprStr){
     value = "ExpressionNode";
-    classType = ExpressionNodeClass;
     this->expressionType = expressionType;
     this->node = node;
     this->expressionNode = expressionNode;
