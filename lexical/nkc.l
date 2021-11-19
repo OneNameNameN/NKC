@@ -4,8 +4,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    #include "../grammer/nkc.h"
-    #include "../grammer/symbolTable.h"
+    #include "../grammer/Node/Node.h"
     #include "nkc.tab.h"
 %}
 
@@ -58,7 +57,7 @@ str        \"[^"]*\"
 "}"                                 {return('}');}
 
 [ \t\v\f\r\n]                       { }
-{int}                               {yylval.s=strdup(yytext);return(INT);}
+{int}                               {yylval.s=strdup(yytext);return(NUMBER);}
 {id}                                {yylval.s=strdup(yytext);return(ID);}
 {str}                               {yylval.s=strdup(yytext);return(STR);}
 {digit}{id}                         {return(ERRID);}
