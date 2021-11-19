@@ -9,7 +9,7 @@ void DefineVarNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
     for(int i = 0; i < deep+1; i++)
         printf("| ");
-    cout<<this->varType;
+    cout<<this->varType<<endl;
     defineListNode->printInfo(deep+1);
 }
 

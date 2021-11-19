@@ -1,7 +1,7 @@
 #include "symbolTable.h"
 
 bool SymbolTable::insert(string name,string type,int modifier,int describe){
-    if(varTable[name]!= nullptr){
+    if(varTable[name] == nullptr){
         int length;
         length = 4;
         varTable[name] = new varStruct(name,type,modifier,describe,address,length);
@@ -37,6 +37,21 @@ bool SymbolTable::endSpace(){
         return true;
     }
     return false;
+}
+
+void SymbolTable::print(int deep){
+    map<string,varStruct*>::iterator iter;
+    iter = varTable.begin();
+    while(iter != varTable.end()){
+        for(int i=0;i<deep;i++){
+            cout<<"|";
+        }
+        cout<<iter->first<<" "<<iter->second<<"\n";
+        iter++;
+    }
+    for(SymbolTable* table:tableList){
+        table->print(deep+1);
+    }
 }
 
 varStruct::varStruct(string n,string type,int m,int d,int adr,int len){

@@ -43,6 +43,9 @@ program:statements{
 $$ = new BaseNode("program");
 $$->addNode($1);
 $$->print(0);
+cout<<endl<<endl;
+$$->createSymbolTable();
+SymbolTable::rootTable->print(0);
 }
 ;
 
@@ -55,9 +58,7 @@ $$ = new StatementsNode($2,$1);
 ;
 
 statement: type ID ';'{
-$$ = new BaseNode("statement");
-$$->addNode($1);
-$$->addNode(new BaseNode("ID",$2));
+$$ = new DefineVarNode($1->value,new DefineListNode(new BaseNode("ID",$2)));
 }
 | expression ';'{
 $$ = new BaseNode("statement");

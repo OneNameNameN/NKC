@@ -28,6 +28,7 @@ public:
     varStruct* get(string name);
     bool startSpace();
     bool endSpace();
+    void print(int deep);
 };
 
 #endif

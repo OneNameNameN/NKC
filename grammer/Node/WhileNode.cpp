@@ -15,6 +15,7 @@ void WhileNode::printInfo(int deep) {
 void WhileNode::createSymbolTable() {
     if(cousin != nullptr) cousin->createSymbolTable();
     SymbolTable::rootTable->startSpace();
-    if(son != nullptr) son->createSymbolTable();
+    statementBlockNode->createSymbolTable();
     SymbolTable::rootTable->endSpace();
+    if(son != nullptr) son->createSymbolTable();
 }

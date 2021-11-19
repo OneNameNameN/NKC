@@ -24,3 +24,10 @@ void StatementsNode::printInfo(int deep) {
         this->statementNode->print(deep+1);
     }
 }
+
+void StatementsNode::createSymbolTable() {
+    if(cousin != nullptr) cousin->createSymbolTable();
+    if(statementNode)statementNode->createSymbolTable();
+    if(statementsNode)statementsNode->createSymbolTable();
+    if(son != nullptr) son->createSymbolTable();   
+}

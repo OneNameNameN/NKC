@@ -10,6 +10,7 @@ public:
     StatementsNode(AbstractNode* node);
     StatementsNode(AbstractNode* node,AbstractNode* statementsNode);
     void printInfo(int deep);
+    void createSymbolTable();
 };
 
 #endif
