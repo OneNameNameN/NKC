@@ -10,13 +10,16 @@ void DefineVarNode::printInfo(int deep) {
     for(int i = 0; i < deep+1; i++)
         printf("| ");
     cout<<this->varType<<endl;
-    defineListNode->printInfo(deep+1);
+    defineListNode->print(deep+1);
 }
 
 void DefineVarNode::createSymbolTable() {
     if(cousin != nullptr) cousin->createSymbolTable();
     while(defineListNode!= nullptr){
-        SymbolTable::currentTable->insert(((DefineListNode*)defineListNode)->define->value,this->varType,0,0);
+        if(!SymbolTable::currentTable->insert(((DefineListNode*)defineListNode)->define->son->value,this->varType,0,0)){
+            cout<<"Insert Error: "<<((DefineListNode*)defineListNode)->define->son->value<<endl;
+            exit(0);
+        }
         defineListNode = ((DefineListNode*)defineListNode)->defineListNode;
     }
     if(son != nullptr) son->createSymbolTable();

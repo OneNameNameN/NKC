@@ -1,5 +1,5 @@
-#ifndef PROJECT_WHILENODE_H
-#define PROJECT_WHILENODE_H
+#ifndef GRAMMER_WHILENODE_H
+#define GRAMMER_WHILENODE_H
 
 #include "AbstractNode.h"
 #include "ExpressionNode.h"
@@ -9,8 +9,8 @@ public:
     AbstractNode* expressionNode;
     AbstractNode* statementBlockNode;
     WhileNode(AbstractNode* expressionNode,AbstractNode* statementBlockNode);
-    void printInfo(int deep);
-    void createSymbolTable();
+    void printInfo(int deep) override;
+    void createSymbolTable() override;
 };
 
 #endif

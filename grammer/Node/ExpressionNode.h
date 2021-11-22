@@ -1,5 +1,5 @@
-#ifndef PROJECT_EXPRESSIONNODE_H
-#define PROJECT_EXPRESSIONNODE_H
+#ifndef GRAMMER_EXPRESSIONNODE_H
+#define GRAMMER_EXPRESSIONNODE_H
 #include "AbstractNode.h"
 class ExpressionNode:public AbstractNode{
 public:
@@ -15,7 +15,7 @@ public:
     AbstractNode* node = nullptr;
     AbstractNode* expressionNode = nullptr;
     string oprStr="";
-    void printInfo(int deep);
+    void printInfo(int deep) override;
 };
 
 #endif

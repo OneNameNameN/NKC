@@ -1,5 +1,5 @@
-#ifndef PROJECT_ABSTRACTNODE_H
-#define PROJECT_ABSTRACTNODE_H
+#ifndef GRAMMER_ABSTRACTNODE_H
+#define GRAMMER_ABSTRACTNODE_H
 #include <iostream>
 #include <string>
 #include <map>

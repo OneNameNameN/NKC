@@ -8,8 +8,8 @@ WhileNode::WhileNode(AbstractNode *expressionNode, AbstractNode* statementBlockN
 
 void WhileNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
-    this->expressionNode->printInfo(deep+1);
-    this->statementBlockNode->printInfo(deep+1);
+    this->expressionNode->print(deep+1);
+    this->statementBlockNode->print(deep+1);
 }
 
 void WhileNode::createSymbolTable() {

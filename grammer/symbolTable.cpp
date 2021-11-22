@@ -26,8 +26,8 @@ varStruct* SymbolTable::get(string name){
 
 bool SymbolTable::startSpace() {
     SymbolTable* newTable = new SymbolTable();
-    newTable->beforeTable = this;
-    tableList.push_back(newTable);
+    newTable->beforeTable = currentTable;
+    currentTable->tableList.push_back(newTable);
     currentTable = newTable;
     return true;
 }

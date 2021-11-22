@@ -6,5 +6,11 @@ StatementBlockNode::StatementBlockNode(AbstractNode* statementsNode){
 
 void StatementBlockNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
-    statementsNode->printInfo(deep+1);
+    statementsNode->print(deep+1);
+}
+
+void StatementBlockNode::createSymbolTable(){
+    if(cousin != nullptr) cousin->createSymbolTable();
+    if(statementsNode)statementsNode->createSymbolTable();
+    if(son != nullptr) son->createSymbolTable();
 }

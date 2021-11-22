@@ -7,3 +7,5 @@ nkc.tab.c
 nkc.exe
 m4.exe
 nkc
+CMakeLists.txt
+cmake-build-debug

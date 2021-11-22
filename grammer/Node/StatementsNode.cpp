@@ -18,7 +18,7 @@ StatementsNode::StatementsNode(AbstractNode *node, AbstractNode *statementsNode)
 void StatementsNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
     if(statementsNode!= nullptr){
-        this->statementsNode->printInfo(deep+1);
+        this->statementsNode->print(deep+1);
     }
     if(statementNode!= nullptr){
         this->statementNode->print(deep+1);

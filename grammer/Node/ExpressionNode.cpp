@@ -26,6 +26,6 @@ void ExpressionNode::printInfo(int deep) {
         default:break;
     }
     if(this->expressionNode){
-        this->expressionNode->printInfo(deep+1);
+        this->expressionNode->print(deep+1);
     }
 }
