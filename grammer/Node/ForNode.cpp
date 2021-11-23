@@ -25,11 +25,11 @@ void ForNode::printInfo(int deep) {
     if(action)action->print(deep+1);
     if(statementBlock)statementBlock->print(deep+1);
 }
-void ForNode::createSymbolTable(){
-    if(cousin != nullptr) cousin->createSymbolTable();
+void ForNode::createSymbolTable(bool needNewSpace){
+    if(cousin != nullptr) cousin->createSymbolTable(true);
     SymbolTable::rootTable->startSpace();
-    if(init)init->createSymbolTable();
-    if(statementBlock)statementBlock->createSymbolTable();
+    if(init)init->createSymbolTable(false);
+    if(statementBlock)statementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
-    if(son != nullptr) son->createSymbolTable();
+    if(son != nullptr) son->createSymbolTable(true);
 }

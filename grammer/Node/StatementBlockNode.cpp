@@ -9,8 +9,10 @@ void StatementBlockNode::printInfo(int deep) {
     statementsNode->print(deep+1);
 }
 
-void StatementBlockNode::createSymbolTable(){
-    if(cousin != nullptr) cousin->createSymbolTable();
-    if(statementsNode)statementsNode->createSymbolTable();
-    if(son != nullptr) son->createSymbolTable();
+void StatementBlockNode::createSymbolTable(bool needNewSpace){
+    if(cousin != nullptr) cousin->createSymbolTable(true);
+    if(needNewSpace)SymbolTable::rootTable->startSpace();
+    if(statementsNode)statementsNode->createSymbolTable(true);
+    if(needNewSpace)SymbolTable::rootTable->endSpace();
+    if(son != nullptr) son->createSymbolTable(true);
 }

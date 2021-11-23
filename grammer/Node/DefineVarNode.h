@@ -8,7 +8,7 @@ public:
     AbstractNode* defineListNode;
     DefineVarNode(string varType,AbstractNode* defineListNode);
     void printInfo(int deep) override;
-    void createSymbolTable() override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif

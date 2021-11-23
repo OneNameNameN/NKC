@@ -25,9 +25,9 @@ void StatementsNode::printInfo(int deep) {
     }
 }
 
-void StatementsNode::createSymbolTable() {
-    if(cousin != nullptr) cousin->createSymbolTable();
-    if(statementNode)statementNode->createSymbolTable();
-    if(statementsNode)statementsNode->createSymbolTable();
-    if(son != nullptr) son->createSymbolTable();   
+void StatementsNode::createSymbolTable(bool needNewSpace) {
+    if(cousin != nullptr) cousin->createSymbolTable(true);
+    if(statementNode)statementNode->createSymbolTable(true);
+    if(statementsNode)statementsNode->createSymbolTable(true);
+    if(son != nullptr) son->createSymbolTable(true);
 }

@@ -33,15 +33,15 @@ void IfElseNode::printInfo(int deep){
     if(ifStatementBlock)ifStatementBlock->print(deep+1);
     if(elseStatementBlock)elseStatementBlock->print(deep+1);
 }
-void IfElseNode::createSymbolTable() {
-    if(cousin != nullptr) cousin->createSymbolTable();
+void IfElseNode::createSymbolTable(bool needNewSpace) {
+    if(cousin != nullptr) cousin->createSymbolTable(true);
 
     SymbolTable::rootTable->startSpace();
-    if(ifStatementBlock)ifStatementBlock->createSymbolTable();
+    if(ifStatementBlock)ifStatementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
     SymbolTable::rootTable->startSpace();
-    if(elseStatementBlock)elseStatementBlock->createSymbolTable();
+    if(elseStatementBlock)elseStatementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
 
-    if(son != nullptr) son->createSymbolTable();
+    if(son != nullptr) son->createSymbolTable(true);
 }

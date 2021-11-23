@@ -14,7 +14,7 @@ public:
     void addNode(AbstractNode *son);
     void print(int deep);
     virtual void printInfo(int deep);
-    virtual void createSymbolTable();
+    virtual void createSymbolTable(bool needNewSpace);
 };
 
 #endif

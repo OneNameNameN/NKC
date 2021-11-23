@@ -10,7 +10,7 @@ public:
     AbstractNode* statementBlockNode;
     WhileNode(AbstractNode* expressionNode,AbstractNode* statementBlockNode);
     void printInfo(int deep) override;
-    void createSymbolTable() override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif

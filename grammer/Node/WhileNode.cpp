@@ -12,10 +12,10 @@ void WhileNode::printInfo(int deep) {
     this->statementBlockNode->print(deep+1);
 }
 
-void WhileNode::createSymbolTable() {
-    if(cousin != nullptr) cousin->createSymbolTable();
-    SymbolTable::rootTable->startSpace();
-    statementBlockNode->createSymbolTable();
-    SymbolTable::rootTable->endSpace();
-    if(son != nullptr) son->createSymbolTable();
+void WhileNode::createSymbolTable(bool needNewSpace) {
+    if(cousin != nullptr) cousin->createSymbolTable(true);
+    if(needNewSpace)SymbolTable::rootTable->startSpace();
+    statementBlockNode->createSymbolTable(true);
+    if(needNewSpace)SymbolTable::rootTable->endSpace();
+    if(son != nullptr) son->createSymbolTable(true);
 }

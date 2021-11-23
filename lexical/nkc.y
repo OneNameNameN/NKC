@@ -48,7 +48,7 @@ $$ = new BaseNode("program");
 $$->addNode($5);
 $$->print(0);
 cout<<endl<<endl;
-$$->createSymbolTable();
+$$->createSymbolTable(true);
 SymbolTable::rootTable->print(0);
 }
 ;

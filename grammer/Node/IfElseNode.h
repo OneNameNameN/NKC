@@ -9,7 +9,7 @@ public:
     IfElseNode(AbstractNode* expression,AbstractNode* ifStatementBlock);
     IfElseNode(AbstractNode* expression,AbstractNode* ifStatementBlock,AbstractNode* elseStatementBlock);
     void printInfo(int deep) override;
-    void createSymbolTable() override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif

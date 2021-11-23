@@ -13,8 +13,8 @@ void DefineVarNode::printInfo(int deep) {
     defineListNode->print(deep+1);
 }
 
-void DefineVarNode::createSymbolTable() {
-    if(cousin != nullptr) cousin->createSymbolTable();
+void DefineVarNode::createSymbolTable(bool needNewSpace) {
+    if(cousin != nullptr) cousin->createSymbolTable(true);
     while(defineListNode!= nullptr){
         if(!SymbolTable::currentTable->insert(((DefineListNode*)defineListNode)->define->son->value,this->varType,0,0)){
             cout<<"Insert Error: "<<((DefineListNode*)defineListNode)->define->son->value<<endl;
@@ -22,5 +22,5 @@ void DefineVarNode::createSymbolTable() {
         }
         defineListNode = ((DefineListNode*)defineListNode)->defineListNode;
     }
-    if(son != nullptr) son->createSymbolTable();
+    if(son != nullptr) son->createSymbolTable(true);
 }

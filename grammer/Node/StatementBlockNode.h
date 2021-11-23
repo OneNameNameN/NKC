@@ -7,7 +7,7 @@ public:
     AbstractNode* statementsNode;
     StatementBlockNode(AbstractNode* statementsNode);
     void printInfo(int deep) override;
-    void createSymbolTable() override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif

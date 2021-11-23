@@ -10,7 +10,7 @@ public:
     AbstractNode* statementBlock;
     ForNode(AbstractNode* init,AbstractNode* expression,AbstractNode* action,AbstractNode* statementBlock);
     void printInfo(int deep) override;
-    void createSymbolTable() override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif
