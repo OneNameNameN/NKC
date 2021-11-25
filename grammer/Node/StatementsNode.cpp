@@ -16,12 +16,11 @@ StatementsNode::StatementsNode(AbstractNode *node, AbstractNode *statementsNode)
     this->statementsNode = statementsNode;
 }
 void StatementsNode::printInfo(int deep) {
-    AbstractNode::printInfo(deep);
     if(statementsNode!= nullptr){
-        this->statementsNode->print(deep+1);
+        this->statementsNode->print(deep);
     }
     if(statementNode!= nullptr){
-        this->statementNode->print(deep+1);
+        this->statementNode->print(deep);
     }
 }
 

@@ -11,9 +11,8 @@ DefineListNode::DefineListNode(AbstractNode* define, AbstractNode* defineListNod
 }
 
 void DefineListNode::printInfo(int deep) {
-    AbstractNode::printInfo(deep);
-    this->define->print(deep+1);
+    this->define->print(deep);
     if(this->defineListNode!= nullptr){
-        this->defineListNode->print(deep+1);
+        this->defineListNode->print(deep);
     }
 }
