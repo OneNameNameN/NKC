@@ -19,6 +19,7 @@ void ExpressionNode::printInfo(int deep) {
         case NumberOrID:break;
         case MonOpr:
         case BinOpr:
+        case Address:
             for(int i = 0; i < deep+1; i++)
                 printf("| ");
             cout<<this->oprStr<<"\n";
@@ -28,4 +29,17 @@ void ExpressionNode::printInfo(int deep) {
     if(this->expressionNode){
         this->expressionNode->print(deep+1);
     }
+}
+void ExpressionNode::createSymbolTable(bool needNewSpace) {
+    if(cousin != nullptr) cousin->createSymbolTable(true);
+    if (node != nullptr)
+    {
+        node->createSymbolTable(true);
+    }
+    if (expressionNode !=nullptr)
+    {
+        expressionNode->createSymbolTable(true);
+    }
+    
+    if(son != nullptr) son->createSymbolTable(true);
 }

@@ -2,10 +2,11 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "../grammer/Node/Node.h"
-
+    #include "../grammer/Intermediate/Quaternion.h"
     int yylex();
     int yyerror(char *);
-    struct ast* root;
+    // struct ast* root;
+    AbstractNode* root;
     extern FILE *yyin;
 %}
 
@@ -44,12 +45,8 @@
 %%
 
 program:specifier ID '(' ')'statement{
-$$ = new BaseNode("program");
-$$->addNode($5);
-$$->print(0);
-cout<<endl<<endl;
-$$->createSymbolTable(true);
-SymbolTable::rootTable->print(0);
+root = new BaseNode("program");
+root->addNode($5);
 }
 ;
 
@@ -220,7 +217,7 @@ $$ = new ExpressionNode($1,1,nullptr,"++");
 $$ = new ExpressionNode($1,1,nullptr,"--");
 }
 | '&' direct_declarator {
-$$ = new ExpressionNode($2,1,nullptr,"&");
+$$ = new ExpressionNode($2,3,nullptr,"&");
 }
 | '(' expression ')' {
 $$ = $2;
@@ -254,6 +251,17 @@ int main(int argc, char **argv)
     yyin = fopen("../test/base.cpp", "r");
     yyparse();
     fclose(yyin);
+    root->print(0);
+    root->createSymbolTable(true);
+    cout<<endl<<endl;
+    SymbolTable::rootTable->print(0);
+    for(int i=0;i<IM::Quaternion::quads->size();i++)
+    {
+        (*IM::Quaternion::quads)[i].print();
+    }
+    /* Intermediate *im = new IM::Intermediate(root, struct_table);
+    im->generate(root, im->getTable());
+    im->print(); */
 }
 int yyerror(char *s)
 {

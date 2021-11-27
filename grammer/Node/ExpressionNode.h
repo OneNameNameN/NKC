@@ -16,6 +16,7 @@ public:
     AbstractNode* expressionNode = nullptr;
     string oprStr="";
     void printInfo(int deep) override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif
