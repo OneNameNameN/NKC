@@ -70,6 +70,8 @@ namespace IM
         "GET_VALUE",
         "GET_ARRAY",
         "GET_STRUCT",
+        "LOGIC_AND",
+        "LOGIC_OR",
         "NONE"};
 
     struct Arg
@@ -185,7 +187,7 @@ namespace IM
             this->args[2].isVar = true;
         }
 
-        inline void backPatch(int target) { this->args[2].literal = target; }
+        inline void backPatch(int target) { this->args[2].isVar=false; this->args[2].literal = target; }
         inline OperatorCode getOperator() { return this->op; }
         inline Arg operator[](int index) { return this->args[index]; }
         inline int getFlag() { return this->flag; }

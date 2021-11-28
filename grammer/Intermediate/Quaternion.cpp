@@ -6,7 +6,7 @@ string IM::Quaternion::argToStr(Arg a)
     {
         if (a.var == NULL)
         {
-            return "-";
+            return "_";
         }
         else
         {
@@ -21,7 +21,7 @@ string IM::Quaternion::argToStr(Arg a)
 
 void IM::Quaternion::print()
 {
-    cout << get_op_str() << "\t" << argToStr(args[0]) << "\t" << argToStr(args[1]) << "\t" << argToStr(args[2]) << endl;
+    cout << "(" << get_op_str() << ", " << argToStr(args[0]) << ", " << argToStr(args[1]) << ", " << argToStr(args[2]) << ")" << endl;
 }
 
 vector<IM::Quaternion>* IM::Quaternion::quads = new vector<IM::Quaternion>();

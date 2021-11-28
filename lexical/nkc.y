@@ -257,6 +257,7 @@ int main(int argc, char **argv)
     SymbolTable::rootTable->print(0);
     for(int i=0;i<IM::Quaternion::quads->size();i++)
     {
+        printf("%d ",i);
         (*IM::Quaternion::quads)[i].print();
     }
     /* Intermediate *im = new IM::Intermediate(root, struct_table);
