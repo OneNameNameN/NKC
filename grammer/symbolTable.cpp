@@ -1,7 +1,6 @@
 #include "symbolTable.h"
 
 bool SymbolTable::insert(string name,string type,int modifier,int describe){
-    cout<<"insert"<<name<<endl;
     if(varTable[name] == nullptr){
         int length;
         length = 4;

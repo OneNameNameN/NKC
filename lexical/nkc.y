@@ -178,7 +178,7 @@ $$ = new BaseNode("specifier","void*");
 ;
 
 expression: expression RELOP expression{
-$$ = new ExpressionNode($1,2,$3,$2);
+$$ = new ExpressionNode($1,4,$3,$2);
 }
 | expression '+' expression{
 $$ = new ExpressionNode($1,2,$3,"+");

@@ -1,4 +1,6 @@
 #include "ExpressionNode.h"
+#include "../Intermediate/Quaternion.h"
+#include "../Intermediate/Intermediate.h"
 
 ExpressionNode::ExpressionNode(AbstractNode* node){
     value = "ExpressionNode";
@@ -20,6 +22,7 @@ void ExpressionNode::printInfo(int deep) {
         case MonOpr:
         case BinOpr:
         case Address:
+        case Relop:
             for(int i = 0; i < deep+1; i++)
                 printf("| ");
             cout<<this->oprStr<<"\n";
@@ -30,16 +33,18 @@ void ExpressionNode::printInfo(int deep) {
         this->expressionNode->print(deep+1);
     }
 }
-void ExpressionNode::createSymbolTable(bool needNewSpace) {
-    if(cousin != nullptr) cousin->createSymbolTable(true);
+void ExpressionNode::createSymbolTable(bool needNewSpace)
+{
+    if (cousin != nullptr)
+        cousin->createSymbolTable(true);
     if (node != nullptr)
     {
         node->createSymbolTable(true);
     }
-    if (expressionNode !=nullptr)
+    if (expressionNode != nullptr)
     {
         expressionNode->createSymbolTable(true);
     }
-    
-    if(son != nullptr) son->createSymbolTable(true);
+    if (son != nullptr)
+        son->createSymbolTable(true);
 }

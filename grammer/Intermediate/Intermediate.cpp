@@ -14,6 +14,36 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
     }
     case ExpressionNode::ExpressionType::MonOpr:
     {
+        varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
+        arg1_node = (ExpressionNode *)exp->node;
+        Quaternion::tempVars->push_back(result);
+        result = Quaternion::tempVars->back();
+        if (exp->oprStr == "!")
+        {
+            if (arg1_node->expressionType == ExpressionNode::Relop)
+            {
+                generateExp((ExpressionNode *)arg1_node);
+                list<int> trueL, falseL;
+                trueL = trueList->top();
+                trueList->pop();
+                falseL = falseList->top();
+                falseList->pop();
+                trueList->push(falseL);
+                falseList->push(trueL);
+            }
+            else
+            {
+                varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
+                Quaternion::tempVars->push_back(result);
+                result = Quaternion::tempVars->back();
+                quaTmp = Intermediate::calculateOperator(IM::LOGIC_NOT, arg1_node, (ExpressionNode *)NULL, result);
+                if (quaTmp != NULL)
+                {
+                    Quaternion::quads->push_back(*quaTmp);
+                }
+                return result;
+            }
+        }
         break;
     }
     case ExpressionNode::ExpressionType::BinOpr:
@@ -49,45 +79,64 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         }
         else if (exp->oprStr == "&&")
         {
-            quaTmp = Intermediate::calculateOperator(IM::LOGIC_AND, arg1_node, arg2_node, result);
+            if (exp->node != nullptr)
+            {
+                exp->node->createSymbolTable(true);
+                generateExp((ExpressionNode *)exp->node);
+                signal->push(Quaternion::quads->size());
+            }
+            if (exp->expressionNode != nullptr)
+            {
+                exp->expressionNode->createSymbolTable(true);
+                generateExp((ExpressionNode *)exp->expressionNode);
+            }
+            list<int> left_true, right_true, left_false, right_false;
+            right_true = trueList->top();
+            trueList->pop();
+            left_true = trueList->top();
+            trueList->pop();
+            right_false = falseList->top();
+            falseList->pop();
+            left_false = falseList->top();
+            falseList->pop();
+            left_false.merge(right_false);
+            falseList->push(left_false);
+            trueList->push(right_true);
+            backPatch(&left_true, signal->top());
+            signal->pop();
         }
         else if (exp->oprStr == "||")
         {
-            quaTmp = Intermediate::calculateOperator(IM::LOGIC_OR, arg1_node, arg2_node, result);
+            if (exp->node != nullptr)
+            {
+                exp->node->createSymbolTable(true);
+                generateExp((ExpressionNode *)exp->node);
+                signal->push(Quaternion::quads->size());
+            }
+            if (exp->expressionNode != nullptr)
+            {
+                exp->expressionNode->createSymbolTable(true);
+                generateExp((ExpressionNode *)exp->expressionNode);
+            }
+            list<int> left_true, right_true, left_false, right_false;
+            right_true = trueList->top();
+            trueList->pop();
+            left_true = trueList->top();
+            trueList->pop();
+            right_false = falseList->top();
+            falseList->pop();
+            left_false = falseList->top();
+            falseList->pop();
+            left_true.merge(right_true);
+            trueList->push(left_true);
+            falseList->push(right_false);
+            backPatch(&left_false, signal->top());
+            signal->pop();
         }
-        // Besides above, else are relop
         else
         {
-            Quaternion *temp_true, *temp_false;
-            if (exp->oprStr == ">")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_GREAT, arg1_node, arg2_node);
-            }
-            else if (exp->oprStr == ">=")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_EQ_GREAT, arg1_node, arg2_node);
-            }
-            else if (exp->oprStr == "<")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_SMALL, arg1_node, arg2_node);
-            }
-            else if (exp->oprStr == "<=")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_EQ_SMALL, arg1_node, arg2_node);
-            }
-            else if (exp->oprStr == "!=")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_NOT_EQUAL, arg1_node, arg2_node);
-            }
-            else if (exp->oprStr == "==")
-            {
-                relopOperator(temp_true, temp_false, IM::JUMP_EQUAL, arg1_node, arg2_node);
-            }
-            else
-            {
-                cout << "RELOP ERROR\n";
-                exit(1);
-            }
+            cout<<"BinOpr Error"<<endl;
+            exit(1);
         }
         if (quaTmp!=NULL)
         {
@@ -104,6 +153,42 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         Quaternion::quads->push_back(*quaTmp);
         quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
         Quaternion::quads->push_back(*quaTmp);
+        break;
+    }
+    case ExpressionNode::ExpressionType::Relop:
+    {
+        arg1_node = (ExpressionNode *)exp->node;
+        arg2_node = (ExpressionNode *)exp->expressionNode;
+        Quaternion *temp_true, *temp_false;
+        if (exp->oprStr == ">")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_GREAT, arg1_node, arg2_node);
+        }
+        else if (exp->oprStr == ">=")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_EQ_GREAT, arg1_node, arg2_node);
+        }
+        else if (exp->oprStr == "<")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_SMALL, arg1_node, arg2_node);
+        }
+        else if (exp->oprStr == "<=")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_EQ_SMALL, arg1_node, arg2_node);
+        }
+        else if (exp->oprStr == "!=")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_NOT_EQUAL, arg1_node, arg2_node);
+        }
+        else if (exp->oprStr == "==")
+        {
+            relopOperator(temp_true, temp_false, IM::JUMP_EQUAL, arg1_node, arg2_node);
+        }
+        else
+        {
+            cout << "RELOP ERROR\n";
+            exit(1);
+        }
         break;
     }
     default:
@@ -135,7 +220,25 @@ void Intermediate::backPatch(list<int> *backList, int target)
 Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg1_node, ExpressionNode *arg2_node, varStruct *result)
 {
     Quaternion *temp;
-    if (arg1_node->node->type == "ID" && arg2_node->node->type == "ID")
+    if (arg2_node == NULL)
+    {
+        if (arg1_node->node->type == "ID")
+        {
+            varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+            temp = new Quaternion(op, arg1, result);
+        }
+        else if (arg1_node->node->type == "NUMBER")
+        {
+            int arg1 = stoi(arg1_node->node->value);
+            temp = new Quaternion(op, arg1, result);
+        }
+        else if (arg1_node->expressionType != ExpressionNode::NumberOrID)
+        {
+            varStruct *arg1 = generateExp((ExpressionNode *)arg1_node);
+            temp = new Quaternion(op, arg1, result);
+        }
+    }
+    else if (arg1_node->node->type == "ID" && arg2_node->node->type == "ID")
     {
         varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
         varStruct *arg2 = SymbolTable::currentTable->get(arg2_node->node->value);
@@ -215,6 +318,26 @@ void Intermediate::relopOperator(Quaternion *true_quad, Quaternion *false_quad, 
     {
         true_quad = new Quaternion(op, stoi(arg1_node->node->value), stoi(arg2_node->node->value), (int)NULL);
     }
+    else if (arg1_node->node->type == "ID" && arg2_node->expressionType != ExpressionNode::NumberOrID)
+    {
+        true_quad = new Quaternion(op, SymbolTable::currentTable->get(arg1_node->node->value), generateExp(arg2_node), (int)NULL);
+    }
+    else if (arg1_node->expressionType != ExpressionNode::NumberOrID && arg2_node->node->type == "ID")
+    {
+        true_quad = new Quaternion(op,generateExp(arg1_node), SymbolTable::currentTable->get(arg2_node->node->value),  (int)NULL);
+    }
+    else if (arg1_node->expressionType != ExpressionNode::NumberOrID && arg2_node->expressionType != ExpressionNode::NumberOrID)
+    {
+        true_quad = new Quaternion(op,generateExp(arg1_node), generateExp(arg2_node),  (int)NULL);
+    }
+    else if (arg1_node->node->type == "NUMBER" && arg2_node->expressionType != ExpressionNode::NumberOrID)
+    {
+        true_quad = new Quaternion(op, stoi(arg1_node->node->value), generateExp(arg2_node), (int)NULL);
+    }
+    else if (arg1_node->expressionType != ExpressionNode::NumberOrID && arg2_node->node->type == "NUMBER")
+    {
+        true_quad = new Quaternion(op,generateExp(arg1_node), stoi(arg2_node->node->value),  (int)NULL);
+    }
     false_quad = new Quaternion(IM::JUMP, (int)NULL);
     list<int> trueL;
     trueL.push_back(Quaternion::quads->size());
@@ -229,3 +352,4 @@ void Intermediate::relopOperator(Quaternion *true_quad, Quaternion *false_quad, 
 
 stack<list<int> >* Intermediate::falseList=new stack<list<int> >();
 stack<list<int> >* Intermediate::trueList=new stack<list<int> >();
+stack<int>* Intermediate::signal=new stack<int>();
