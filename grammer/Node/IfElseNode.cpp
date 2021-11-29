@@ -50,7 +50,7 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
     SymbolTable::rootTable->startSpace();
     if(ifStatementBlock)ifStatementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
-    SymbolTable::rootTable->startSpace();
+    // SymbolTable::rootTable->startSpace();
     if(elseStatementBlock)
     {
         Quaternion *temp = new Quaternion(IM::JUMP, (int)NULL);
@@ -58,7 +58,7 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
         int tempPos = Quaternion::quads->size() - 1;
         int else_start = Quaternion::quads->size();
 
-        elseStatementBlock->createSymbolTable(false);
+        elseStatementBlock->createSymbolTable(true);
 
         Intermediate::backPatch(&Judge_false, else_start);
         int end = Quaternion::quads->size();
@@ -69,7 +69,7 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
         int end = Quaternion::quads->size();
         Intermediate::backPatch(&Judge_false, end);
     }
-    SymbolTable::rootTable->endSpace();
+    // SymbolTable::rootTable->endSpace();
 
     if(son != nullptr) son->createSymbolTable(true);
 }

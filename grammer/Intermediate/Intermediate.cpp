@@ -14,12 +14,12 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
     }
     case ExpressionNode::ExpressionType::MonOpr:
     {
-        varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
         arg1_node = (ExpressionNode *)exp->node;
-        Quaternion::tempVars->push_back(result);
-        result = Quaternion::tempVars->back();
         if (exp->oprStr == "!")
         {
+            varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
+            Quaternion::tempVars->push_back(result);
+            result = Quaternion::tempVars->back();
             if (arg1_node->expressionType == ExpressionNode::Relop)
             {
                 generateExp((ExpressionNode *)arg1_node);
@@ -43,6 +43,18 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
                 }
                 return result;
             }
+        }
+        else if (exp->oprStr == "++")
+        {
+            varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+            quaTmp = new Quaternion(IM::PLUS, arg1, 1, arg1);
+            Quaternion::quads->push_back(*quaTmp);
+        }
+        else if (exp->oprStr == "--")
+        {
+            varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+            quaTmp = new Quaternion(IM::MINUS, arg1, 1, arg1);
+            Quaternion::quads->push_back(*quaTmp);
         }
         break;
     }
