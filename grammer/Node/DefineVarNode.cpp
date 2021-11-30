@@ -35,10 +35,10 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
         ExpressionNode *exp = (ExpressionNode *)(((DefineListNode *)defineListNode)->define->son->cousin);
         if (exp == NULL)
         {
-            printf("exp NULL!");
-            exit(1);
+            //处理仅定义变量,未给初始值情况
+            quaTmp = new IM::Quaternion(IM::DEFINE, varTmp, (varStruct*)NULL);
         }
-        if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
+        else if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
         {
             if (exp->node->type == "NUMBER")
             {

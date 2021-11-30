@@ -39,6 +39,7 @@ namespace IM
         LOGIC_AND,
         LOGIC_OR,
         LOGIC_NOT,
+        DEFINE,
         NONE
     };
 
@@ -74,6 +75,7 @@ namespace IM
         "LOGIC_AND",
         "LOGIC_OR",
         "LOGIC_NOT",
+        "DEFINE",
         "NONE"};
 
     struct Arg

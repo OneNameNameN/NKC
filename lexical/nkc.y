@@ -255,6 +255,7 @@ int main(int argc, char **argv)
     root->createSymbolTable(true);
     cout<<endl<<endl;
     SymbolTable::rootTable->print(0);
+    printf("\n");
     for(int i=0;i<Intermediate::quads->size();i++)
     {
         printf("%d ",i);
