@@ -1,6 +1,5 @@
 #include "DefineVarNode.h"
 #include "ExpressionNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
 DefineVarNode::DefineVarNode(string varType, AbstractNode *defineListNode)
 {
@@ -57,7 +56,7 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
             varStruct *arg1 = Intermediate::generateExp(exp);
             quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
         }
-        IM::Quaternion::quads->push_back(*quaTmp);
+        Intermediate::quads->push_back(*quaTmp);
         defineListNode = ((DefineListNode *)defineListNode)->defineListNode;
     }
     if (son != nullptr)

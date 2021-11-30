@@ -2,7 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "../grammer/Node/Node.h"
-    #include "../grammer/Intermediate/Quaternion.h"
+    #include "../grammer/Intermediate/Intermediate.h"
     int yylex();
     int yyerror(char *);
     // struct ast* root;
@@ -255,14 +255,11 @@ int main(int argc, char **argv)
     root->createSymbolTable(true);
     cout<<endl<<endl;
     SymbolTable::rootTable->print(0);
-    for(int i=0;i<IM::Quaternion::quads->size();i++)
+    for(int i=0;i<Intermediate::quads->size();i++)
     {
         printf("%d ",i);
-        (*IM::Quaternion::quads)[i].print();
+        (*Intermediate::quads)[i].print();
     }
-    /* Intermediate *im = new IM::Intermediate(root, struct_table);
-    im->generate(root, im->getTable());
-    im->print(); */
 }
 int yyerror(char *s)
 {

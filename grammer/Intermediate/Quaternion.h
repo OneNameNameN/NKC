@@ -87,15 +87,11 @@ namespace IM
     {
     private:
         OperatorCode op;
-        // 0: arg1, 1: arg2, 2: result
-        Arg args[3];
-        int flag;
+        Arg args[3]; // 0: arg1, 1: arg2, 2: result
         inline std::string get_op_str() { return operator_string[op]; }
         string argToStr(Arg a);
 
     public:
-        static vector<Quaternion>* quads;
-        static vector<varStruct*>* tempVars;
         inline Quaternion(OperatorCode op, int arg1, int arg2, int result)
         {
             this->op = op;
@@ -189,10 +185,7 @@ namespace IM
             this->args[2].isVar = true;
         }
 
-        inline void backPatch(int target) { this->args[2].literal = target; }
-        inline OperatorCode getOperator() { return this->op; }
-        inline Arg operator[](int index) { return this->args[index]; }
-        inline int getFlag() { return this->flag; }
+        inline void backPatch(int target) { this->args[2].literal = target; } //回填
         void print();
     };
 }

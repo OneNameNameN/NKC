@@ -1,5 +1,4 @@
 #include "IfElseNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
 
 IfElseNode::IfElseNode(AbstractNode* expression,AbstractNode* ifStatementBlock){
@@ -40,36 +39,36 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
     if(cousin != nullptr) cousin->createSymbolTable(true);
 
     Intermediate::generateExp((ExpressionNode*)expressionNode);
-    int start = Quaternion::quads->size();
+    int start = Intermediate::quads->size();
     list<int> Judge_true = Intermediate::trueList->top();
-    list<int> Judge_false = Intermediate::falseList->top();
     Intermediate::trueList->pop();
+    list<int> Judge_false = Intermediate::falseList->top();
     Intermediate::falseList->pop();
     Intermediate::backPatch(&Judge_true,start);
 
     SymbolTable::rootTable->startSpace();
     if(ifStatementBlock)ifStatementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
-    // SymbolTable::rootTable->startSpace();
+    SymbolTable::rootTable->startSpace();
     if(elseStatementBlock)
     {
         Quaternion *temp = new Quaternion(IM::JUMP, (int)NULL);
-        Quaternion::quads->push_back(*temp);
-        int tempPos = Quaternion::quads->size() - 1;
-        int else_start = Quaternion::quads->size();
+        Intermediate::quads->push_back(*temp);
+        int tempIndex = Intermediate::quads->size() - 1;
+        int else_start = Intermediate::quads->size();
 
-        elseStatementBlock->createSymbolTable(true);
+        elseStatementBlock->createSymbolTable(false);
 
         Intermediate::backPatch(&Judge_false, else_start);
-        int end = Quaternion::quads->size();
-        (*IM::Quaternion::quads)[tempPos].backPatch(end);
+        int end = Intermediate::quads->size();
+        (*Intermediate::quads)[tempIndex].backPatch(end);
     }
     else
     {
-        int end = Quaternion::quads->size();
+        int end = Intermediate::quads->size();
         Intermediate::backPatch(&Judge_false, end);
     }
-    // SymbolTable::rootTable->endSpace();
+    SymbolTable::rootTable->endSpace();
 
     if(son != nullptr) son->createSymbolTable(true);
 }

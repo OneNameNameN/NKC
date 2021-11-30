@@ -10,6 +10,7 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
     {
     case ExpressionNode::ExpressionType::NumberOrID:
     {
+        //对于NumberOrID,在各Node内自行处理
         break;
     }
     case ExpressionNode::ExpressionType::MonOpr:
@@ -17,29 +18,26 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         arg1_node = (ExpressionNode *)exp->node;
         if (exp->oprStr == "!")
         {
-            varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
-            Quaternion::tempVars->push_back(result);
-            result = Quaternion::tempVars->back();
             if (arg1_node->expressionType == ExpressionNode::Relop)
             {
+                // !后为逻辑运算符,交换trueList,falseList顶层元素
                 generateExp((ExpressionNode *)arg1_node);
-                list<int> trueL, falseL;
-                trueL = trueList->top();
+                list<int> trueTmp = trueList->top();
+                list<int> falseTmp = falseList->top();
                 trueList->pop();
-                falseL = falseList->top();
                 falseList->pop();
-                trueList->push(falseL);
-                falseList->push(trueL);
+                trueList->push(trueTmp);
+                falseList->push(falseTmp);
             }
             else
             {
-                varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
-                Quaternion::tempVars->push_back(result);
-                result = Quaternion::tempVars->back();
-                quaTmp = Intermediate::calculateOperator(IM::LOGIC_NOT, arg1_node, (ExpressionNode *)NULL, result);
+                varStruct *result = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
+                tempVars->push_back(result);
+                result = tempVars->back();
+                quaTmp =calculateOperator(IM::LOGIC_NOT, arg1_node, (ExpressionNode *)NULL, result);
                 if (quaTmp != NULL)
                 {
-                    Quaternion::quads->push_back(*quaTmp);
+                    quads->push_back(*quaTmp);
                 }
                 return result;
             }
@@ -48,54 +46,54 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         {
             varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
             quaTmp = new Quaternion(IM::PLUS, arg1, 1, arg1);
-            Quaternion::quads->push_back(*quaTmp);
+            quads->push_back(*quaTmp);
         }
         else if (exp->oprStr == "--")
         {
             varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
             quaTmp = new Quaternion(IM::MINUS, arg1, 1, arg1);
-            Quaternion::quads->push_back(*quaTmp);
+            quads->push_back(*quaTmp);
         }
         break;
     }
     case ExpressionNode::ExpressionType::BinOpr:
     {
-        varStruct *result = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "Integer", 0, 0, 0, 4);
+        varStruct *result = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
         arg1_node = (ExpressionNode *)exp->node;
         arg2_node = (ExpressionNode *)exp->expressionNode;
-        Quaternion::tempVars->push_back(result);
-        result = Quaternion::tempVars->back();
+        tempVars->push_back(result);
+        result = tempVars->back();
         if (exp->oprStr == "+")
         {
-            quaTmp = Intermediate::calculateOperator(IM::PLUS, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::PLUS, arg1_node, arg2_node, result);
         }
         else if (exp->oprStr == "-")
         {
-            quaTmp = Intermediate::calculateOperator(IM::MINUS, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::MINUS, arg1_node, arg2_node, result);
         }
         else if (exp->oprStr == "*")
         {
-            quaTmp = Intermediate::calculateOperator(IM::TIMES, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::TIMES, arg1_node, arg2_node, result);
         }
         else if (exp->oprStr == "/")
         {
-            quaTmp = Intermediate::calculateOperator(IM::DIV, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::DIV, arg1_node, arg2_node, result);
         }
         else if (exp->oprStr == "%")
         {
-            quaTmp = Intermediate::calculateOperator(IM::MOD, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::MOD, arg1_node, arg2_node, result);
         }
         else if (exp->oprStr == "^")
         {
-            quaTmp = Intermediate::calculateOperator(IM::POWER, arg1_node, arg2_node, result);
+            quaTmp = calculateOperator(IM::POWER, arg1_node, arg2_node, result);
         }
-        else if (exp->oprStr == "&&")
+        else if (exp->oprStr == "&&" || exp->oprStr == "||")
         {
             if (exp->node != nullptr)
             {
                 exp->node->createSymbolTable(true);
                 generateExp((ExpressionNode *)exp->node);
-                signal->push(Quaternion::quads->size());
+                signal->push(quads->size());
             }
             if (exp->expressionNode != nullptr)
             {
@@ -111,38 +109,20 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
             falseList->pop();
             left_false = falseList->top();
             falseList->pop();
-            left_false.merge(right_false);
-            falseList->push(left_false);
-            trueList->push(right_true);
-            backPatch(&left_true, signal->top());
-            signal->pop();
-        }
-        else if (exp->oprStr == "||")
-        {
-            if (exp->node != nullptr)
+            if (exp->oprStr == "&&")
             {
-                exp->node->createSymbolTable(true);
-                generateExp((ExpressionNode *)exp->node);
-                signal->push(Quaternion::quads->size());
+                left_false.merge(right_false);
+                falseList->push(left_false);
+                trueList->push(right_true);
+                backPatch(&left_true, signal->top());
             }
-            if (exp->expressionNode != nullptr)
+            else
             {
-                exp->expressionNode->createSymbolTable(true);
-                generateExp((ExpressionNode *)exp->expressionNode);
+                left_true.merge(right_true);
+                trueList->push(left_true);
+                falseList->push(right_false);
+                backPatch(&left_false, signal->top());
             }
-            list<int> left_true, right_true, left_false, right_false;
-            right_true = trueList->top();
-            trueList->pop();
-            left_true = trueList->top();
-            trueList->pop();
-            right_false = falseList->top();
-            falseList->pop();
-            left_false = falseList->top();
-            falseList->pop();
-            left_true.merge(right_true);
-            trueList->push(left_true);
-            falseList->push(right_false);
-            backPatch(&left_false, signal->top());
             signal->pop();
         }
         else
@@ -152,19 +132,18 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         }
         if (quaTmp!=NULL)
         {
-            Quaternion::quads->push_back(*quaTmp);
+            quads->push_back(*quaTmp);
         }
         return result;
         break;
     }
     case ExpressionNode::ExpressionType::Address:
     {
-        varStruct *tmp = new varStruct("Temp" + to_string(Quaternion::tempVars->size()), "ADDRESS", 0, 0, 0, 4);
-        Quaternion::tempVars->push_back(tmp);
-        quaTmp = new Quaternion(IM::GET_ADDRESS, SymbolTable::currentTable->get(exp->node->value), tmp);
-        Quaternion::quads->push_back(*quaTmp);
-        quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
-        Quaternion::quads->push_back(*quaTmp);
+        varStruct *result = new varStruct("Temp" + to_string(tempVars->size()), "ADDRESS", 0, 0, 0, 4);
+        tempVars->push_back(result);
+        quaTmp = new Quaternion(IM::GET_ADDRESS, SymbolTable::currentTable->get(exp->node->value), result);
+        quads->push_back(*quaTmp);
+        return result;
         break;
     }
     case ExpressionNode::ExpressionType::Relop:
@@ -198,7 +177,7 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         }
         else
         {
-            cout << "RELOP ERROR\n";
+            cout << "RELOP ERROR" << endl;
             exit(1);
         }
         break;
@@ -208,23 +187,18 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
     }
 }
 
-list<int> *Intermediate::makeList(int index)
-{
-    list<int> *jump_list = new list<int>();
-    jump_list->push_back(index);
-    return jump_list;
-}
 list<int> *Intermediate::merge(list<int> *list1, list<int> *list2)
 {
     list1->merge(*list2);
     return list1;
 }
+
 void Intermediate::backPatch(list<int> *backList, int target)
 {
     list<int>::iterator it;
     for (it = backList->begin(); it != backList->end(); it++)
     {
-        (*IM::Quaternion::quads)[*it].backPatch(target);
+        (*quads)[*it].backPatch(target);
     }
     return;
 }
@@ -234,6 +208,7 @@ Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg
     Quaternion *temp;
     if (arg2_node == NULL)
     {
+        //单目运算
         if (arg1_node->node->type == "ID")
         {
             varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
@@ -351,17 +326,21 @@ void Intermediate::relopOperator(Quaternion *true_quad, Quaternion *false_quad, 
         true_quad = new Quaternion(op,generateExp(arg1_node), stoi(arg2_node->node->value),  (int)NULL);
     }
     false_quad = new Quaternion(IM::JUMP, (int)NULL);
-    list<int> trueL;
-    trueL.push_back(Quaternion::quads->size());
-    Quaternion::quads->push_back(*true_quad);
-    list<int> falseL;
-    falseL.push_back(Quaternion::quads->size());
-    Quaternion::quads->push_back(*false_quad);
-    trueList->push(trueL);
-    falseList->push(falseL);
+
+    list<int> trueTmp;
+    trueTmp.push_back(quads->size());
+    quads->push_back(*true_quad);
+    trueList->push(trueTmp);
+    list<int> falseTmp;
+    falseTmp.push_back(quads->size());
+    quads->push_back(*false_quad);
+    falseList->push(falseTmp);
     return;
 }
 
+//静态成员变量类外初始化
+vector<IM::Quaternion>* Intermediate::quads = new vector<IM::Quaternion>();
+vector<varStruct*>* Intermediate::tempVars = new vector<varStruct*>();
 stack<list<int> >* Intermediate::falseList=new stack<list<int> >();
 stack<list<int> >* Intermediate::trueList=new stack<list<int> >();
 stack<int>* Intermediate::signal=new stack<int>();

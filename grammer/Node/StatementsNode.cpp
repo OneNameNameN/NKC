@@ -33,6 +33,7 @@ void StatementsNode::createSymbolTable(bool needNewSpace) {
     if (statementNode)
     {
         statementNode->createSymbolTable(true);
+        //处理Return语句
         if (statementNode->type == "RETURN")
         {
             ExpressionNode* exp = (ExpressionNode *)statementNode->son;
@@ -55,7 +56,7 @@ void StatementsNode::createSymbolTable(bool needNewSpace) {
                 varStruct *arg1 = Intermediate::generateExp(exp);
                 quaTmp = new IM::Quaternion(IM::RET, arg1, (varStruct*)NULL);
             }
-            Quaternion::quads->push_back(*quaTmp);
+            Intermediate::quads->push_back(*quaTmp);
         }
         
     }

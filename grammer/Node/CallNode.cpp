@@ -36,9 +36,7 @@ void CallNode::createSymbolTable(bool needNewSpace)
             printf("exp NULL ERROR!");
             exit(1);
         }
-        switch (exp->expressionType)
-        {
-        case ExpressionNode::ExpressionType::NumberOrID:
+        if (exp->expressionType==ExpressionNode::ExpressionType::NumberOrID)
         {
             if (exp->node->type == "NUMBER")
             {
@@ -52,47 +50,27 @@ void CallNode::createSymbolTable(bool needNewSpace)
             }
             else if (exp->node->type == "STRING")
             {
-                varStruct *tmp = new varStruct("Temp" + std::to_string(Quaternion::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
-                Quaternion::tempVars->push_back(tmp);
+                //针对调用函数中的string的权宜之策
+                varStruct *tmp = new varStruct("Temp" + std::to_string(Intermediate::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
+                Intermediate::tempVars->push_back(tmp);
                 varStruct *str = new varStruct(exp->node->value, "STRING", 0, 0, 0, 0);
                 quaTmp = new Quaternion(IM::ASSIGN, str, tmp);
-                Quaternion::quads->push_back(*quaTmp);
+                Intermediate::quads->push_back(*quaTmp);
                 quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
             }
-            Quaternion::quads->push_back(*quaTmp);
-            break;
+            Intermediate::quads->push_back(*quaTmp);
         }
-        case ExpressionNode::ExpressionType::MonOpr:
-        {
-            //TODO
-            break;
-        }
-        case ExpressionNode::ExpressionType::BinOpr:
+        else
         {
             varStruct *arg1 = Intermediate::generateExp((ExpressionNode *)exp);
             quaTmp = new Quaternion(IM::PARAM, arg1, (varStruct *)NULL);
-            Quaternion::quads->push_back(*quaTmp);
-            break;
+            Intermediate::quads->push_back(*quaTmp);            
         }
-        case ExpressionNode::ExpressionType::Address:
-        {
-            varStruct *tmp = new varStruct("Temp" + std::to_string(Quaternion::tempVars->size()), "ADDRESS", 0, 0, 0, 4);
-            Quaternion::tempVars->push_back(tmp);
-            quaTmp = new Quaternion(IM::GET_ADDRESS, SymbolTable::currentTable->get(exp->node->value), tmp);
-            Quaternion::quads->push_back(*quaTmp);
-            quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
-            Quaternion::quads->push_back(*quaTmp);
-            break;
-        }
-        default:
-            break;
-        }
-
         expList = (ExpressionListNode *)expList->expressionList;
     }
     varStruct *varTmp = new varStruct(this->callName, "FUNCTION", 0, 0, 0, 0);
-    Quaternion *temp = new Quaternion(IM::CALL, varTmp, count, (varStruct *)NULL);
-    Quaternion::quads->push_back(*temp);
+    Quaternion *quaTmp = new Quaternion(IM::CALL, varTmp, count, (varStruct *)NULL);
+    Intermediate::quads->push_back(*quaTmp);
 
     if (son != nullptr)
         son->createSymbolTable(true);

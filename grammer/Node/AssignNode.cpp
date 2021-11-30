@@ -1,6 +1,5 @@
 #include "AssignNode.h"
 #include "ExpressionNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
 AssignNode::AssignNode(AbstractNode* node, AbstractNode* expression){
     value = "AssignNode";
@@ -48,7 +47,7 @@ void AssignNode::createSymbolTable(bool needNewSpace)
     }
     if (quaTmp != NULL)
     {
-        IM::Quaternion::quads->push_back(*quaTmp);
+        Intermediate::quads->push_back(*quaTmp);
     }
 
     if (son != nullptr)
