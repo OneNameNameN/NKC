@@ -1,6 +1,6 @@
 #include "ExpressionNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
+
 
 ExpressionNode::ExpressionNode(AbstractNode* node){
     value = "ExpressionNode";

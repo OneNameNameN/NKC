@@ -1,6 +1,7 @@
 #include "AssignNode.h"
 #include "ExpressionNode.h"
 #include "../Intermediate/Intermediate.h"
+
 AssignNode::AssignNode(AbstractNode* node, AbstractNode* expression){
     value = "AssignNode";
     this->node = node;

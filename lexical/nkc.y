@@ -3,6 +3,7 @@
     #include <stdlib.h>
     #include "../grammer/Node/Node.h"
     #include "../grammer/Intermediate/Intermediate.h"
+
     int yylex();
     int yyerror(char *);
     // struct ast* root;

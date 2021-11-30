@@ -1,5 +1,4 @@
 #include "WhileNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
 
 WhileNode::WhileNode(AbstractNode *expressionNode, AbstractNode* statementBlockNode) {

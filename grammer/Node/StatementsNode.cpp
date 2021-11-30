@@ -1,7 +1,7 @@
 #include "StatementsNode.h"
 #include "ExpressionNode.h"
-#include "../Intermediate/Quaternion.h"
 #include "../Intermediate/Intermediate.h"
+
 
 StatementsNode::StatementsNode() {
     this->value = "StatementsNode";
@@ -60,6 +60,5 @@ void StatementsNode::createSymbolTable(bool needNewSpace) {
         }
         
     }
-
     if(son != nullptr) son->createSymbolTable(true);
 }
