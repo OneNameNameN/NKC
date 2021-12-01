@@ -58,7 +58,14 @@ void StatementsNode::createSymbolTable(bool needNewSpace) {
             }
             Intermediate::quads->push_back(*quaTmp);
         }
-        
+        else if (statementNode->type == "EXPRESSION")
+        {
+            ExpressionNode *exp = (ExpressionNode *)statementNode;
+            if (exp->oprStr == "++" || exp->oprStr == "--")
+            {
+                Intermediate::generateExp((ExpressionNode *)statementNode);
+            }
+        }
     }
     if(son != nullptr) son->createSymbolTable(true);
 }

@@ -6,6 +6,7 @@ ExpressionNode::ExpressionNode(AbstractNode* node){
     value = "ExpressionNode";
     expressionType = NumberOrID;
     this->node = node;
+    this->type = "EXPRESSION";
 }
 ExpressionNode::ExpressionNode(AbstractNode* node,int expressionType,AbstractNode* expressionNode,string oprStr){
     value = "ExpressionNode";
@@ -13,6 +14,7 @@ ExpressionNode::ExpressionNode(AbstractNode* node,int expressionType,AbstractNod
     this->node = node;
     this->expressionNode = expressionNode;
     this->oprStr = oprStr;
+    this->type = "EXPRESSION";
 }
 void ExpressionNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
