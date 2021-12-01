@@ -2,10 +2,12 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "../grammer/Node/Node.h"
+    #include "../grammer/Intermediate/Intermediate.h"
 
     int yylex();
     int yyerror(char *);
-    struct ast* root;
+    // struct ast* root;
+    AbstractNode* root;
     extern FILE *yyin;
 %}
 
@@ -44,12 +46,8 @@
 %%
 
 program:specifier ID '(' ')'statement{
-$$ = new BaseNode("program");
-$$->addNode($5);
-$$->print(0);
-cout<<endl<<endl;
-$$->createSymbolTable(true);
-SymbolTable::rootTable->print(0);
+root = new BaseNode("program");
+root->addNode($5);
 }
 ;
 
@@ -181,7 +179,7 @@ $$ = new BaseNode("specifier","void*");
 ;
 
 expression: expression RELOP expression{
-$$ = new ExpressionNode($1,2,$3,$2);
+$$ = new ExpressionNode($1,4,$3,$2);
 }
 | expression '+' expression{
 $$ = new ExpressionNode($1,2,$3,"+");
@@ -220,7 +218,7 @@ $$ = new ExpressionNode($1,1,nullptr,"++");
 $$ = new ExpressionNode($1,1,nullptr,"--");
 }
 | '&' direct_declarator {
-$$ = new ExpressionNode($2,1,nullptr,"&");
+$$ = new ExpressionNode($2,3,nullptr,"&");
 }
 | '(' expression ')' {
 $$ = $2;
@@ -254,6 +252,16 @@ int main(int argc, char **argv)
     yyin = fopen("../test/base.cpp", "r");
     yyparse();
     fclose(yyin);
+    root->print(0);
+    root->createSymbolTable(true);
+    cout<<endl<<endl;
+    SymbolTable::rootTable->print(0);
+    printf("\n");
+    for(int i=0;i<Intermediate::quads->size();i++)
+    {
+        printf("%d ",i);
+        (*Intermediate::quads)[i].print();
+    }
 }
 int yyerror(char *s)
 {

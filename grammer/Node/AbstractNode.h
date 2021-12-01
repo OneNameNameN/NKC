@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include "../symbolTable.h"
+#include "../Intermediate/Quaternion.h"
+
 using namespace std;
 class AbstractNode{
 public:

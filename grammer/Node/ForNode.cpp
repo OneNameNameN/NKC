@@ -1,4 +1,7 @@
 #include "ForNode.h"
+#include "ExpressionNode.h"
+#include "../Intermediate/Intermediate.h"
+
 ForNode::ForNode(AbstractNode* init,AbstractNode* expression,AbstractNode* action,AbstractNode* statementBlock){
     value = "ForNode";
     if(init){
@@ -29,7 +32,34 @@ void ForNode::createSymbolTable(bool needNewSpace){
     if(cousin != nullptr) cousin->createSymbolTable(true);
     SymbolTable::rootTable->startSpace();
     if(init)init->createSymbolTable(false);
+
+    int start = Intermediate::quads->size(); 
+    list<int> Judge_true,Judge_false;
+    if (expression!=nullptr)
+    {
+        Intermediate::generateExp((ExpressionNode *)expression);
+        Judge_true = Intermediate::trueList->top();
+        Intermediate::trueList->pop();
+        Judge_false = Intermediate::falseList->top();
+        Intermediate::falseList->pop();
+        Intermediate::backPatch(&Judge_true, Judge_true.back() + 2); //跳过false时jump语句,所以加2
+    }
+    
+
     if(statementBlock)statementBlock->createSymbolTable(false);
+    if (action != nullptr)
+    {
+        Intermediate::generateExp((ExpressionNode*)action);
+    }
+
+    Quaternion *temp = new Quaternion(IM::JUMP, start);
+    Intermediate::quads->push_back(*temp);
+    int end = Intermediate::quads->size();
+    if (expression!=nullptr)
+    {
+        Intermediate::backPatch(&Judge_false, end);
+    }
+
     SymbolTable::rootTable->endSpace();
     if(son != nullptr) son->createSymbolTable(true);
 }

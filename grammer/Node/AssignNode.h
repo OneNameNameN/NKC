@@ -8,6 +8,7 @@ public:
     AbstractNode* expression;
     AssignNode(AbstractNode* node, AbstractNode* expression);
     void printInfo(int deep) override;
+    void createSymbolTable(bool needNewSpace) override;
 };
 
 #endif

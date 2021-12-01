@@ -1,4 +1,6 @@
 #include "IfElseNode.h"
+#include "../Intermediate/Intermediate.h"
+
 IfElseNode::IfElseNode(AbstractNode* expression,AbstractNode* ifStatementBlock){
     value = "ExpressionNode";
     if(expression){
@@ -36,11 +38,36 @@ void IfElseNode::printInfo(int deep){
 void IfElseNode::createSymbolTable(bool needNewSpace) {
     if(cousin != nullptr) cousin->createSymbolTable(true);
 
+    Intermediate::generateExp((ExpressionNode*)expressionNode);
+    int start = Intermediate::quads->size();
+    list<int> Judge_true = Intermediate::trueList->top();
+    Intermediate::trueList->pop();
+    list<int> Judge_false = Intermediate::falseList->top();
+    Intermediate::falseList->pop();
+    Intermediate::backPatch(&Judge_true,start);
+
     SymbolTable::rootTable->startSpace();
     if(ifStatementBlock)ifStatementBlock->createSymbolTable(false);
     SymbolTable::rootTable->endSpace();
     SymbolTable::rootTable->startSpace();
-    if(elseStatementBlock)elseStatementBlock->createSymbolTable(false);
+    if(elseStatementBlock)
+    {
+        Quaternion *temp = new Quaternion(IM::JUMP, (int)NULL);
+        Intermediate::quads->push_back(*temp);
+        int tempIndex = Intermediate::quads->size() - 1;
+        int else_start = Intermediate::quads->size();
+
+        elseStatementBlock->createSymbolTable(false);
+
+        Intermediate::backPatch(&Judge_false, else_start);
+        int end = Intermediate::quads->size();
+        (*Intermediate::quads)[tempIndex].backPatch(end);
+    }
+    else
+    {
+        int end = Intermediate::quads->size();
+        Intermediate::backPatch(&Judge_false, end);
+    }
     SymbolTable::rootTable->endSpace();
 
     if(son != nullptr) son->createSymbolTable(true);
