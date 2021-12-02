@@ -40,6 +40,7 @@ namespace IM
         LOGIC_OR,
         LOGIC_NOT,
         DEFINE,
+        NUM,
         NONE
     };
 
@@ -76,6 +77,7 @@ namespace IM
         "LOGIC_OR",
         "LOGIC_NOT",
         "DEFINE",
+        "NUM",
         "NONE"};
 
     struct Arg
@@ -87,13 +89,12 @@ namespace IM
 
     class Quaternion
     {
-    private:
+    public:
         OperatorCode op;
         Arg args[3]; // 0: arg1, 1: arg2, 2: result
         inline std::string get_op_str() { return operator_string[op]; }
         string argToStr(Arg a);
 
-    public:
         inline Quaternion(OperatorCode op, int arg1, int arg2, int result)
         {
             this->op = op;
