@@ -9,6 +9,7 @@
 #include "ExpressionListNode.h"
 #include "ExpressionNode.h"
 #include "ForNode.h"
+#include "FunctionNode.h"
 #include "IfElseNode.h"
 #include "StatementBlockNode.h"
 #include "StatementsNode.h"

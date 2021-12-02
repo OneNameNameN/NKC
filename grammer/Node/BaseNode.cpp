@@ -18,7 +18,21 @@ BaseNode::BaseNode(string type,string value)
     this->type = type;
     this->value = value;
 }
+BaseNode::BaseNode(string type,string value,int num)
+{
+    this->num = num;
+    nodeType = 'T';
+    this->type = type;
+    this->value = value;
+}
 
 void BaseNode::printInfo(int deep){
-    AbstractNode::printInfo(deep);
+    if(!num){
+        AbstractNode::printInfo(deep);
+    }
+    else{
+        for(int i = 0; i < deep; i++)
+            printf("| ");
+        cout<< this->value<<"["<<num<<"]"<<"\n";
+    }
 }

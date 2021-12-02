@@ -14,6 +14,7 @@
 %union {
     AbstractNode* a;
     char *s;
+    vector<AbstractNode*>* v;
 }
 
 %right <s> '='
@@ -36,18 +37,37 @@
 %token <s> IF ELSE WHILE FOR CONTINUE RETURN ERRORCHAR GETMEMBER
 %token <s> '{' '}'
 
-
 %type <a> program
 %type <a> specifier
 %type <a> direct_declarator
 %type <a> statement_block statements declaration_for
 %type <a> expression statement argument_expression_list defination declaration_list declaration
+%type <a> function function_defination
+%type <v> function_defination_list
 
 %%
 
-program:specifier ID '(' ')'statement{
+program: program function{
+root->addNode($2);
+}
+| program defination ';'{
+root->addNode($2);
+}
+| defination ';' {
 root = new BaseNode("program");
-root->addNode($5);
+root->addNode($1);
+}
+| function {
+root = new BaseNode("program");
+root->addNode($1);
+}
+
+
+function:specifier ID '(' function_defination_list ')'statement{
+$$ = new FunctionNode($1->value,$2,*$4,$6);
+}
+| specifier ID '(' ')' statement{
+$$ = new FunctionNode($1->value,$2,$5);
 }
 ;
 
@@ -64,6 +84,22 @@ $$ = new StatementsNode($1);
 }
 |statements statement {
 $$ = new StatementsNode($2,$1);
+}
+;
+
+function_defination:specifier declaration{
+$$ = new DefineVarNode($1->value,new DefineListNode($2));
+$$->value = "FunctionArgsNode";
+}
+;
+
+function_defination_list:function_defination{
+$$ = new vector<AbstractNode*>;
+$$->push_back($1);
+}
+|function_defination_list ',' function_defination{
+$1->push_back($3);
+$$ = $1;
 }
 ;
 
@@ -92,10 +128,10 @@ $$->addNode($1);
 ;
 
 direct_declarator: ID {
-$$ = new BaseNode("ID",$1)
+$$ = new BaseNode("ID",$1);
 }
-| ID '[' INT ']' {
-$$ = new BaseNode("ID",$1)
+| ID '[' NUMBER ']' {
+$$ = new BaseNode("ID",$1,stoi($3));
 }
 ;
 

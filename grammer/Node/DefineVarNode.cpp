@@ -23,9 +23,10 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
         cousin->createSymbolTable(true);
     while (defineListNode != nullptr)
     {
-        if (!SymbolTable::currentTable->insert(((DefineListNode *)defineListNode)->define->son->value, this->varType, 0, 0))
+        AbstractNode* varNode = ((DefineListNode *)defineListNode)->define->son;
+        if (!SymbolTable::currentTable->insert(varNode->value, this->varType, 0, ((BaseNode*)varNode)->num))
         {
-            cout << "Insert Error: " << ((DefineListNode *)defineListNode)->define->son->value << endl;
+            cout << "Insert Error: " << varNode->value << endl;
             exit(0);
         }
         //IM
