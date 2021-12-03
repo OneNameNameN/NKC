@@ -50,6 +50,11 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
                 varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
                 quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
             }
+            else if (exp->node->type == "STRING")
+            {
+                cout<<"Error: can't assign char* to integer. Aborted!"<<endl;
+                exit(1);
+            }
         }
         else
         {

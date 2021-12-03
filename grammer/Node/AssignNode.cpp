@@ -20,6 +20,11 @@ void AssignNode::createSymbolTable(bool needNewSpace)
 
     //IM
     varStruct *varTmp = SymbolTable::currentTable->get(node->value);
+    if(varTmp == NULL)
+    {
+        cout<<"Error: use of undeclared identifier \""<<node->value<<"\""<<endl;
+        exit(1);
+    }
     IM::Quaternion *quaTmp = NULL;
     // 暂时 定义变量的右值只有Expression
     ExpressionNode *exp = (ExpressionNode *)expression;

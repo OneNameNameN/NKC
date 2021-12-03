@@ -132,7 +132,14 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         }
         if (quaTmp!=NULL)
         {
-            quads->push_back(*quaTmp);
+            if (quaTmp->op==IM::NUM)
+            {
+                result = new varStruct(quaTmp->argToStr(quaTmp->args[2]), "Literal", 0, 0, 0, 4);
+            }
+            else
+            {
+                quads->push_back(*quaTmp);
+            }
         }
         return result;
         break;
@@ -277,11 +284,40 @@ Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg
     {
         int arg1 = stoi(arg1_node->node->value);
         int arg2 = stoi(arg2_node->node->value);
-        temp = new Quaternion(op, arg1, arg2, result);
+        int literal;
+        if (op == PLUS)
+        {
+            literal = arg1 + arg2;
+        }
+        else if (op == MINUS)
+        {
+            literal = arg1 - arg2;
+        }
+        else if (op == TIMES)
+        {
+            literal = arg1 * arg2;
+        }
+        else if (op == DIV)
+        {
+            literal = arg1 / arg2;
+        }
+        else if (op == MOD)
+        {
+            literal = arg1 % arg2;
+        }
+        else if (op == POWER)
+        {
+            literal = arg1 ^ arg2;
+        }
+        temp = new Quaternion(IM::NUM, literal);
+        tempVars->pop_back();
     }
     else
     {
-        cout << "Error: calculateOperator" << endl;
+        if (arg1_node->node->type == "STRING" || arg2_node->node->type == "STRING")
+        {
+            cout << "Error: char* can't be operated." << endl;
+        }
         exit(1);
     }
     return temp;
