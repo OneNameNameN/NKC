@@ -61,7 +61,7 @@ void SymbolTable::print(int deep){
 varStruct::varStruct(string n,string type,int m,int d,int adr,int len){
     this->name = n;
     this->type = type;
-    this->modifier = m;
+    this->isPointer = m;
     this->describe = d;
     this->address = adr;
     this->length = len;

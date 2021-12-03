@@ -92,10 +92,13 @@ $$->addNode($1);
 ;
 
 direct_declarator: ID {
-$$ = new BaseNode("ID",$1)
+$$ = new BaseNode("ID",$1);
 }
-| ID '[' INT ']' {
-$$ = new BaseNode("ID",$1)
+| ID '[' NUMBER ']' {
+$$ = new BaseNode("ID",$1,stoi($3));
+}
+| '*' ID {
+$$ = new BaseNode("ID",$2,true);
 }
 ;
 
@@ -169,12 +172,6 @@ $$ = new BaseNode("specifier",$1);
 }
 | VOID {
 $$ = new BaseNode("specifier",$1);
-}
-|INT '*' {
-$$ = new BaseNode("specifier","int*");
-}
-|VOID '*' {
-$$ = new BaseNode("specifier","void*");
 }
 ;
 

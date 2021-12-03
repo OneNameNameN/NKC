@@ -9,7 +9,7 @@ class varStruct{
 public:
     string name;
     string type;
-    int modifier;
+    int isPointer;
     int describe;
     int address;
     int length;
