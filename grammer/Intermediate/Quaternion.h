@@ -40,6 +40,8 @@ namespace IM
         LOGIC_OR,
         LOGIC_NOT,
         DEFINE,
+        DEFINE_ARRAY,
+        DEFINE_POINTER,
         NUM,
         NONE
     };
@@ -77,6 +79,8 @@ namespace IM
         "LOGIC_OR",
         "LOGIC_NOT",
         "DEFINE",
+        "DEFINE_ARRAY",
+        "DEFINE_POINTER",
         "NUM",
         "NONE"};
 

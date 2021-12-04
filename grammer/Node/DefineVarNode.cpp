@@ -41,7 +41,21 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
         if (exp == NULL)
         {
             //处理仅定义变量,未给初始值情况
-            quaTmp = new IM::Quaternion(IM::DEFINE, varTmp, (varStruct*)NULL);
+            if (((BaseNode *)varNode)->isPointer)
+            {
+                quaTmp = new IM::Quaternion(IM::DEFINE_POINTER, varTmp, (varStruct *)NULL);
+            }
+            else
+            {
+                if (num == 0)
+                {
+                    quaTmp = new IM::Quaternion(IM::DEFINE, varTmp, (varStruct *)NULL);
+                }
+                else
+                {
+                    quaTmp = new IM::Quaternion(IM::DEFINE_ARRAY, varTmp, (varStruct *)NULL);
+                }
+            }
         }
         else if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
         {
@@ -53,7 +67,45 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
             else if (exp->node->type == "ID")
             {
                 varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
-                quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                if (((BaseNode *)varNode)->isPointer)
+                {
+                    quaTmp = new IM::Quaternion(IM::ASSIGN_POINTER, arg1, varTmp);
+                }
+                else
+                {
+                    BaseNode *nodeTmp = (BaseNode *)exp->node;
+                    if (nodeTmp->num)
+                    {
+                        int indexInt = -1;
+                        varStruct *indexVar = NULL;
+                        ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+                        if (expIndex->node->type == "NUMBER")
+                        {
+                            indexInt = stoi(expIndex->node->value);
+                        }
+                        else if (expIndex->node->type == "ID")
+                        {
+                            indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+                        }
+                        else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+                        {
+                            indexVar = Intermediate::generateExp(expIndex);
+                        }
+                        if (indexInt == -1)
+                        {
+                            quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexVar, varTmp);
+                        }
+                        else
+                        {
+                            quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexInt, varTmp);
+                        }
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                    }
+
+                }
             }
             else if (exp->node->type == "STRING")
             {

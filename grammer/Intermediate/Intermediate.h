@@ -13,6 +13,7 @@ public:
     static varStruct *generateExp(ExpressionNode *); //处理ExpressionNode
     static Quaternion *calculateOperator(OperatorCode, ExpressionNode *, ExpressionNode *, varStruct *); //计算运算符
     static void relopOperator(Quaternion *, Quaternion *, OperatorCode, ExpressionNode *, ExpressionNode *); //比较运算符
+    static varStruct *idExp(AbstractNode*); //处理整数型和数组型ID
     static list<int> *merge(list<int> *list1, list<int> *list2); //用于回填
     static void backPatch(list<int> *backList, int target); //回填
     static vector<Quaternion> *quads; //保存四元式

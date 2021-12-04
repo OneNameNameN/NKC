@@ -46,7 +46,37 @@ void CallNode::createSymbolTable(bool needNewSpace)
             else if (exp->node->type == "ID")
             {
                 varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
-                quaTmp = new IM::Quaternion(IM::PARAM, arg1, (varStruct *)NULL);
+                BaseNode* nodeTmp = (BaseNode*)exp->node;
+                if (nodeTmp->num)
+                {
+                    int indexInt = -1;
+                    varStruct *indexVar = NULL;
+                    ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+                    if (expIndex->node->type == "NUMBER")
+                    {
+                        indexInt = stoi(expIndex->node->value);
+                    }
+                    else if (expIndex->node->type == "ID")
+                    {
+                        indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+                    }
+                    else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+                    {
+                        indexVar = Intermediate::generateExp(expIndex);
+                    }
+                    if (indexInt == -1)
+                    {
+                        quaTmp = new IM::Quaternion(IM::PARAM, arg1, indexVar, (varStruct *)NULL);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexInt, (varStruct *)NULL);
+                    }
+                }
+                else
+                {
+                    quaTmp = new IM::Quaternion(IM::PARAM, arg1, (varStruct *)NULL);
+                } 
             }
             else if (exp->node->type == "STRING")
             {

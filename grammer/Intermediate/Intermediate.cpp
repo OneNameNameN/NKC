@@ -42,16 +42,74 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
                 return result;
             }
         }
-        else if (exp->oprStr == "++")
+        else if (exp->oprStr == "++" || exp->oprStr == "--")
         {
             varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
-            quaTmp = new Quaternion(IM::PLUS, arg1, 1, arg1);
-            quads->push_back(*quaTmp);
-        }
-        else if (exp->oprStr == "--")
-        {
-            varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
-            quaTmp = new Quaternion(IM::MINUS, arg1, 1, arg1);
+            BaseNode *nodeTmp = (BaseNode *)arg1_node->node;
+            if (nodeTmp->num)
+            {
+                int indexInt = -1;
+                varStruct *indexVar = NULL;
+                ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+                if (expIndex->node->type == "NUMBER")
+                {
+                    indexInt = stoi(expIndex->node->value);
+                }
+                else if (expIndex->node->type == "ID")
+                {
+                    indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+                }
+                else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+                {
+                    indexVar = Intermediate::generateExp(expIndex);
+                }
+
+                varStruct *tmp = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
+                tempVars->push_back(tmp);
+                tmp = tempVars->back();
+                if (indexInt == -1)
+                {
+                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexVar, tmp);
+                    quads->push_back(*quaTmp);
+                    if (exp->oprStr == "++")
+                    {
+                        quaTmp = new IM::Quaternion(IM::PLUS, tmp, 1, tmp);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::MINUS, tmp, 1, tmp);
+                    }
+                    quads->push_back(*quaTmp);
+                    quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, tmp, indexVar, arg1);
+                }
+                else
+                {
+                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexInt, tmp);
+                    quads->push_back(*quaTmp);
+                    if (exp->oprStr == "++")
+                    {
+                        quaTmp = new IM::Quaternion(IM::PLUS, tmp, 1, tmp);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::MINUS, tmp, 1, tmp);
+                    }
+
+                    quads->push_back(*quaTmp);
+                    quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, tmp, indexInt, arg1);
+                }
+            }
+            else
+            {
+                if (exp->oprStr == "++")
+                {
+                    quaTmp = new Quaternion(IM::PLUS, arg1, 1, arg1);
+                }
+                else
+                {
+                    quaTmp = new Quaternion(IM::MINUS, arg1, 1, arg1);
+                }
+            }
             quads->push_back(*quaTmp);
         }
         break;
@@ -189,6 +247,115 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
         }
         break;
     }
+    case ExpressionNode::ExpressionType::Assign:
+    {
+        AssignNode* assignNode = (AssignNode*)exp->node;
+        AbstractNode* node = assignNode->node;
+        AbstractNode* expression = assignNode->expression;
+        varStruct *varTmp = SymbolTable::currentTable->get(node->value);
+        if (varTmp == NULL)
+        {
+            cout << "Error: use of undeclared identifier \"" << node->value << "\"" << endl;
+            exit(1);
+        }
+        IM::Quaternion *quaTmp = NULL;
+        ExpressionNode *exp = (ExpressionNode *)expression;
+        if (exp == NULL)
+        {
+            printf("exp NULL!");
+            exit(1);
+        }
+        BaseNode *nodeTmp = (BaseNode *)node;
+        if (nodeTmp->num)
+        {
+            int indexInt = -1;
+            varStruct *indexVar = NULL;
+            ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+            if (expIndex->node->type == "NUMBER")
+            {
+                indexInt = stoi(expIndex->node->value);
+            }
+            else if (expIndex->node->type == "ID")
+            {
+                indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+            }
+            else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+            {
+                indexVar = Intermediate::generateExp(expIndex);
+            }
+
+            if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
+            {
+                if (exp->node->type == "NUMBER")
+                {
+                    int arg1 = std::stoi(exp->node->value);
+                    if (indexInt == -1)
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexVar, varTmp);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexInt, varTmp);
+                    }
+                }
+                else if (exp->node->type == "ID")
+                {
+                    varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
+                    if (indexInt == -1)
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexVar, varTmp);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexInt, varTmp);
+                    }
+                }
+            }
+            else
+            {
+                varStruct *arg1 = Intermediate::generateExp(exp);
+                if (indexInt == -1)
+                {
+                    quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexVar, varTmp);
+                }
+                else
+                {
+                    quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexInt, varTmp);
+                }
+            }
+        }
+        else if (nodeTmp->isPointer)
+        {
+            /* code */
+        }
+        else
+        {
+            if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
+            {
+
+                if (exp->node->type == "NUMBER")
+                {
+                    int arg1 = std::stoi(exp->node->value);
+                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                }
+                else if (exp->node->type == "ID")
+                {
+                    varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
+                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                }
+            }
+            else
+            {
+                varStruct *arg1 = Intermediate::generateExp(exp);
+                quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+            }
+        }
+
+        if (quaTmp != NULL)
+        {
+            Intermediate::quads->push_back(*quaTmp);
+        }
+    }
     default:
         break;
     }
@@ -218,7 +385,7 @@ Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg
         //单目运算
         if (arg1_node->node->type == "ID")
         {
-            varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+            varStruct *arg1 = idExp(arg1_node->node);
             temp = new Quaternion(op, arg1, result);
         }
         else if (arg1_node->node->type == "NUMBER")
@@ -234,26 +401,26 @@ Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg
     }
     else if (arg1_node->node->type == "ID" && arg2_node->node->type == "ID")
     {
-        varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
-        varStruct *arg2 = SymbolTable::currentTable->get(arg2_node->node->value);
+        varStruct *arg1 = idExp(arg1_node->node);
+        varStruct *arg2 = idExp(arg2_node->node);
         temp = new Quaternion(op, arg1, arg2, result);
     }
     else if (arg1_node->node->type == "ID" && arg2_node->expressionType != ExpressionNode::NumberOrID)
     {
-        varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+        varStruct *arg1 = idExp(arg1_node->node);
         varStruct *arg2 = generateExp((ExpressionNode *)arg2_node);
         temp = new Quaternion(op, arg1, arg2, result);
     }
     else if (arg1_node->node->type == "ID" && arg2_node->node->type == "NUMBER")
     {
-        varStruct *arg1 = SymbolTable::currentTable->get(arg1_node->node->value);
+        varStruct *arg1 = idExp(arg1_node->node);
         int arg2 = stoi(arg2_node->node->value);
         temp = new Quaternion(op, arg1, arg2, result);
     }
     else if (arg1_node->expressionType != ExpressionNode::NumberOrID && arg2_node->node->type == "ID")
     {
         varStruct *arg1 = generateExp((ExpressionNode *)arg1_node);
-        varStruct *arg2 = SymbolTable::currentTable->get(arg2_node->node->value);
+        varStruct *arg2 = idExp(arg2_node->node);
         temp = new Quaternion(op, arg1, arg2, result);
     }
     else if (arg1_node->expressionType != ExpressionNode::NumberOrID && arg2_node->expressionType != ExpressionNode::NumberOrID)
@@ -271,7 +438,7 @@ Quaternion *Intermediate::calculateOperator(OperatorCode op, ExpressionNode *arg
     else if (arg1_node->node->type == "NUMBER" && arg2_node->node->type == "ID")
     {
         int arg1 = stoi(arg1_node->node->value);
-        varStruct *arg2 = SymbolTable::currentTable->get(arg2_node->node->value);
+        varStruct *arg2 = idExp(arg2_node->node);
         temp = new Quaternion(op, arg1, arg2, result);
     }
     else if (arg1_node->node->type == "NUMBER" && arg2_node->expressionType != ExpressionNode::NumberOrID)
@@ -374,6 +541,47 @@ void Intermediate::relopOperator(Quaternion *true_quad, Quaternion *false_quad, 
     return;
 }
 
+varStruct *Intermediate::idExp(AbstractNode *node)
+{
+    BaseNode *nodeTmp = (BaseNode *)node;
+    varStruct *arg1 = SymbolTable::currentTable->get(nodeTmp->value);
+    if (nodeTmp->num)
+    {
+        Quaternion* quaTmp;
+        int indexInt = -1;
+        varStruct *indexVar = NULL;
+        ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+        if (expIndex->node->type == "NUMBER")
+        {
+            indexInt = stoi(expIndex->node->value);
+        }
+        else if (expIndex->node->type == "ID")
+        {
+            indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+        }
+        else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+        {
+            indexVar = Intermediate::generateExp(expIndex);
+        }
+        varStruct *tmp = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
+        tempVars->push_back(tmp);
+        tmp = tempVars->back();
+        if (indexInt == -1)
+        {
+            quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexVar, tmp);
+        }
+        else
+        {
+            quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexInt, tmp);
+        }
+        quads->push_back(*quaTmp);
+        return tmp;
+    }
+    else
+    {
+        return arg1;
+    }
+}
 //静态成员变量类外初始化
 vector<IM::Quaternion>* Intermediate::quads = new vector<IM::Quaternion>();
 vector<varStruct*>* Intermediate::tempVars = new vector<varStruct*>();
