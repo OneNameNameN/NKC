@@ -4,12 +4,12 @@
 #include "AbstractNode.h"
 class BaseNode: public AbstractNode{
 public:
-    int num = 0;
+    AbstractNode* num = nullptr;
     bool isPointer = false;
     BaseNode();
     BaseNode(string value);
     BaseNode(string type,string value);
-    BaseNode(string type,string value,int n);
+    BaseNode(string type,string value,AbstractNode* n);
     BaseNode(string type,string value,bool isPtr);
     void printInfo(int deep) override;
 };

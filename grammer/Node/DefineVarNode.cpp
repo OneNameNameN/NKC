@@ -24,7 +24,11 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
     while (defineListNode != nullptr)
     {
         AbstractNode* varNode = ((DefineListNode *)defineListNode)->define->son;
-        if (!SymbolTable::currentTable->insert(varNode->value, this->varType,((BaseNode*)varNode)->isPointer?1:0 , ((BaseNode*)varNode)->num))
+        int num = 0;
+        if(((BaseNode*)varNode)->num){
+            num = stoi(((ExpressionNode*)((BaseNode*)varNode)->num)->node->value);
+        }
+        if (!SymbolTable::currentTable->insert(varNode->value, this->varType,((BaseNode*)varNode)->isPointer?1:0 , num))
         {
             cout << "Insert Error: " << varNode->value << endl;
             exit(0);

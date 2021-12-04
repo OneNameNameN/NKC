@@ -20,6 +20,7 @@ void ExpressionNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
     this->node->print(deep+1);
     switch (expressionType) {
+        case Assign:
         case NumberOrID:break;
         case MonOpr:
         case BinOpr:

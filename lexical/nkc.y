@@ -94,8 +94,8 @@ $$->addNode($1);
 direct_declarator: ID {
 $$ = new BaseNode("ID",$1);
 }
-| ID '[' NUMBER ']' {
-$$ = new BaseNode("ID",$1,stoi($3));
+| ID '[' expression ']' {
+$$ = new BaseNode("ID",$1,$3);
 }
 | '*' ID {
 $$ = new BaseNode("ID",$2,true);
@@ -112,9 +112,6 @@ $$ = $1;
 
 statement: defination';'{
 $$ = $1;
-}
-| direct_declarator '=' expression ';'{
-$$ = new AssignNode($1,$3);
 }
 | expression ';'{
 $$ = $1;
@@ -231,6 +228,10 @@ $$ =new ExpressionNode(new CallNode($1,$3));
 }
 | direct_declarator{
 $$ = new ExpressionNode($1);
+}
+| direct_declarator '=' expression {
+$$ = new ExpressionNode(new AssignNode($1,$3));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
 }
 ;
 
