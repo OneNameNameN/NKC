@@ -324,33 +324,45 @@ varStruct *Intermediate::generateExp(ExpressionNode *exp)
                 }
             }
         }
-        else if (nodeTmp->isPointer)
-        {
-            /* code */
-        }
         else
         {
+            // varStruct *tmp = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
+            // tempVars->push_back(tmp);
+            // tmp = tempVars->back();
+            // quaTmp = new IM::Quaternion(IM::GET_VALUE, varTmp, tmp);
+            // Intermediate::quads->push_back(*quaTmp);
+            OperatorCode op;
+            if (nodeTmp->isPointer)
+            {
+                op = IM::ASSIGN_VALUE;
+            }
+            else if (varTmp->isPointer == 1)
+            {
+                op = IM::ASSIGN_POINTER;
+            }
+            else
+            {
+                op = IM::ASSIGN;
+            }
             if (exp->expressionType == ExpressionNode::ExpressionType::NumberOrID)
             {
-
                 if (exp->node->type == "NUMBER")
                 {
                     int arg1 = std::stoi(exp->node->value);
-                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                    quaTmp = new IM::Quaternion(op, arg1, varTmp);
                 }
                 else if (exp->node->type == "ID")
                 {
-                    varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
-                    quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                    varStruct *arg1 = idExp(exp->node);
+                    quaTmp = new IM::Quaternion(op, arg1, varTmp);
                 }
             }
             else
             {
                 varStruct *arg1 = Intermediate::generateExp(exp);
-                quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+                quaTmp = new IM::Quaternion(op, arg1, varTmp);
             }
         }
-
         if (quaTmp != NULL)
         {
             Intermediate::quads->push_back(*quaTmp);
@@ -543,6 +555,10 @@ void Intermediate::relopOperator(Quaternion *true_quad, Quaternion *false_quad, 
 
 varStruct *Intermediate::idExp(AbstractNode *node)
 {
+    if (node->parent && ((ExpressionNode*)node->parent)->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+    {
+        return generateExp((ExpressionNode*)node->parent);
+    }
     BaseNode *nodeTmp = (BaseNode *)node;
     varStruct *arg1 = SymbolTable::currentTable->get(nodeTmp->value);
     if (nodeTmp->num)
@@ -574,6 +590,16 @@ varStruct *Intermediate::idExp(AbstractNode *node)
         {
             quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexInt, tmp);
         }
+        quads->push_back(*quaTmp);
+        return tmp;
+    }
+    else if(nodeTmp->isPointer)
+    {
+        Quaternion* quaTmp;
+        varStruct *tmp = new varStruct("Temp" + to_string(tempVars->size()), "Integer", 0, 0, 0, 4);
+        tempVars->push_back(tmp);
+        tmp = tempVars->back();
+        quaTmp = new IM::Quaternion(IM::GET_VALUE, arg1, tmp);
         quads->push_back(*quaTmp);
         return tmp;
     }

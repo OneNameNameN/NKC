@@ -13,6 +13,7 @@ ExpressionNode::ExpressionNode(AbstractNode* node,int expressionType,AbstractNod
     value = "ExpressionNode";
     this->expressionType = expressionType;
     this->node = node;
+    node->parent = this;
     this->expressionNode = expressionNode;
     this->oprStr = oprStr;
     this->type = "EXPRESSION";

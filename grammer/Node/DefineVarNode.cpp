@@ -100,6 +100,15 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
                             quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, indexInt, varTmp);
                         }
                     }
+                    else if(nodeTmp->isPointer)
+                    {
+                        varStruct *tmp = new varStruct("Temp" + to_string(Intermediate::tempVars->size()), "Integer", 0, 0, 0, 4);
+                        Intermediate::tempVars->push_back(tmp);
+                        tmp = Intermediate::tempVars->back();
+                        quaTmp = new IM::Quaternion(IM::GET_VALUE, arg1, tmp);
+                        Intermediate::quads->push_back(*quaTmp);
+                        quaTmp = new IM::Quaternion(IM::ASSIGN, tmp, varTmp);
+                    }
                     else
                     {
                         quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
@@ -116,7 +125,14 @@ void DefineVarNode::createSymbolTable(bool needNewSpace)
         else
         {
             varStruct *arg1 = Intermediate::generateExp(exp);
-            quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+            if (((BaseNode *)varNode)->isPointer)
+            {
+                quaTmp = new IM::Quaternion(IM::ASSIGN_POINTER, arg1, varTmp);
+            }
+            else
+            {
+                quaTmp = new IM::Quaternion(IM::ASSIGN, arg1, varTmp);
+            }
         }
         Intermediate::quads->push_back(*quaTmp);
         defineListNode = ((DefineListNode *)defineListNode)->defineListNode;
