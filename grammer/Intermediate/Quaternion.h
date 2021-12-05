@@ -26,6 +26,7 @@ namespace IM
         ASSIGN_ARRAY,
         ASSIGN_STRUCT,
         ASSIGN_POINTER,
+        ASSIGN_VALUE,
         GET_ADDRESS,
         PARAM,
         CALL,
@@ -40,6 +41,8 @@ namespace IM
         LOGIC_OR,
         LOGIC_NOT,
         DEFINE,
+        DEFINE_ARRAY,
+        DEFINE_POINTER,
         NUM,
         NONE
     };
@@ -63,6 +66,7 @@ namespace IM
         "ASSIGN_ARRAY",
         "ASSIGN_STRUCT",
         "ASSIGN_POINTER",
+        "ASSIGN_VALUE",
         "GET_ADDRESS",
         "PARAM",
         "CALL",
@@ -77,6 +81,8 @@ namespace IM
         "LOGIC_OR",
         "LOGIC_NOT",
         "DEFINE",
+        "DEFINE_ARRAY",
+        "DEFINE_POINTER",
         "NUM",
         "NONE"};
 

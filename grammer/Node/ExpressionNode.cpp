@@ -6,12 +6,14 @@ ExpressionNode::ExpressionNode(AbstractNode* node){
     value = "ExpressionNode";
     expressionType = NumberOrID;
     this->node = node;
+    node->parent = this;
     this->type = "EXPRESSION";
 }
 ExpressionNode::ExpressionNode(AbstractNode* node,int expressionType,AbstractNode* expressionNode,string oprStr){
     value = "ExpressionNode";
     this->expressionType = expressionType;
     this->node = node;
+    node->parent = this;
     this->expressionNode = expressionNode;
     this->oprStr = oprStr;
     this->type = "EXPRESSION";
@@ -20,6 +22,7 @@ void ExpressionNode::printInfo(int deep) {
     AbstractNode::printInfo(deep);
     this->node->print(deep+1);
     switch (expressionType) {
+        case Assign:
         case NumberOrID:break;
         case MonOpr:
         case BinOpr:

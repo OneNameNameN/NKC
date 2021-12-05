@@ -46,17 +46,47 @@ void CallNode::createSymbolTable(bool needNewSpace)
             else if (exp->node->type == "ID")
             {
                 varStruct *arg1 = SymbolTable::currentTable->get(exp->node->value);
-                quaTmp = new IM::Quaternion(IM::PARAM, arg1, (varStruct *)NULL);
+                BaseNode* nodeTmp = (BaseNode*)exp->node;
+                if (nodeTmp->num)
+                {
+                    int indexInt = -1;
+                    varStruct *indexVar = NULL;
+                    ExpressionNode *expIndex = (ExpressionNode *)(nodeTmp->num);
+                    if (expIndex->node->type == "NUMBER")
+                    {
+                        indexInt = stoi(expIndex->node->value);
+                    }
+                    else if (expIndex->node->type == "ID")
+                    {
+                        indexVar = SymbolTable::currentTable->get(expIndex->node->value);
+                    }
+                    else if (expIndex->expressionType != ExpressionNode::ExpressionType::NumberOrID)
+                    {
+                        indexVar = Intermediate::generateExp(expIndex);
+                    }
+                    if (indexInt == -1)
+                    {
+                        quaTmp = new IM::Quaternion(IM::PARAM, arg1, indexVar, (varStruct *)NULL);
+                    }
+                    else
+                    {
+                        quaTmp = new IM::Quaternion(IM::ASSIGN_ARRAY, arg1, indexInt, (varStruct *)NULL);
+                    }
+                }
+                else
+                {
+                    quaTmp = new IM::Quaternion(IM::PARAM, arg1, (varStruct *)NULL);
+                } 
             }
             else if (exp->node->type == "STRING")
             {
                 //针对调用函数中的string的权宜之策
-                varStruct *tmp = new varStruct("Temp" + std::to_string(Intermediate::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
-                Intermediate::tempVars->push_back(tmp);
+                // varStruct *tmp = new varStruct("Temp" + std::to_string(Intermediate::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
+                // Intermediate::tempVars->push_back(tmp);
                 varStruct *str = new varStruct(exp->node->value, "STRING", 0, 0, 0, 0);
-                quaTmp = new Quaternion(IM::ASSIGN, str, tmp);
-                Intermediate::quads->push_back(*quaTmp);
-                quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
+                // quaTmp = new Quaternion(IM::ASSIGN, str, tmp);
+                // Intermediate::quads->push_back(*quaTmp);
+                quaTmp = new Quaternion(IM::PARAM, str, (varStruct *)NULL);
             }
             Intermediate::quads->push_back(*quaTmp);
         }

@@ -92,10 +92,13 @@ $$->addNode($1);
 ;
 
 direct_declarator: ID {
-$$ = new BaseNode("ID",$1)
+$$ = new BaseNode("ID",$1);
 }
-| ID '[' INT ']' {
-$$ = new BaseNode("ID",$1)
+| ID '[' expression ']' {
+$$ = new BaseNode("ID",$1,$3);
+}
+| '*' ID {
+$$ = new BaseNode("ID",$2,true);
 }
 ;
 
@@ -109,9 +112,6 @@ $$ = $1;
 
 statement: defination';'{
 $$ = $1;
-}
-| direct_declarator '=' expression ';'{
-$$ = new AssignNode($1,$3);
 }
 | expression ';'{
 $$ = $1;
@@ -169,12 +169,6 @@ $$ = new BaseNode("specifier",$1);
 }
 | VOID {
 $$ = new BaseNode("specifier",$1);
-}
-|INT '*' {
-$$ = new BaseNode("specifier","int*");
-}
-|VOID '*' {
-$$ = new BaseNode("specifier","void*");
 }
 ;
 
@@ -235,6 +229,10 @@ $$ =new ExpressionNode(new CallNode($1,$3));
 | direct_declarator{
 $$ = new ExpressionNode($1);
 }
+| direct_declarator '=' expression {
+$$ = new ExpressionNode(new AssignNode($1,$3));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
 ;
 
 argument_expression_list: expression{
@@ -257,20 +255,10 @@ int main(int argc, char **argv)
     cout<<endl<<endl;
     SymbolTable::rootTable->print(0);
     printf("\n");
-    int now = 0;
     for(int i=0;i<Intermediate::quads->size();i++)
     {
-        Quaternion* quaTmp = &(*Intermediate::quads)[i];
-        if (quaTmp->op == IM::ASSIGN && quaTmp->args[2].isVar && (quaTmp->args[2].var->name.compare(0, 4, "Temp") == 0))
-        {
-            quaTmp->args[2].var->name = quaTmp->args[0].var->name;
-        }
-        else
-        {
-            printf("%d ",now);
-            (*Intermediate::quads)[i].print();
-            now++;
-        }
+        printf("%d ",i);
+        (*Intermediate::quads)[i].print();
     }
 }
 int yyerror(char *s)

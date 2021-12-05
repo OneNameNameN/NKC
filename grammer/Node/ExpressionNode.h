@@ -8,7 +8,8 @@ public:
         MonOpr = 1, //单目运算
         BinOpr = 2, //双目运算(不包含比较运算)
         Address = 3, //取地址
-        Relop=4 //比较运算符
+        Relop = 4, //比较运算符
+        Assign = 5, // 赋值语句
     };
     ExpressionNode(AbstractNode* node);
     ExpressionNode(AbstractNode* node,int expressionType,AbstractNode* expressionNode,string oprStr);
