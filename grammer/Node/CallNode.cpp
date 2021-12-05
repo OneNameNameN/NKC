@@ -81,12 +81,12 @@ void CallNode::createSymbolTable(bool needNewSpace)
             else if (exp->node->type == "STRING")
             {
                 //针对调用函数中的string的权宜之策
-                varStruct *tmp = new varStruct("Temp" + std::to_string(Intermediate::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
-                Intermediate::tempVars->push_back(tmp);
+                // varStruct *tmp = new varStruct("Temp" + std::to_string(Intermediate::tempVars->size()), "STRING", 0, 0, 0, 2 * exp->node->value.size());
+                // Intermediate::tempVars->push_back(tmp);
                 varStruct *str = new varStruct(exp->node->value, "STRING", 0, 0, 0, 0);
-                quaTmp = new Quaternion(IM::ASSIGN, str, tmp);
-                Intermediate::quads->push_back(*quaTmp);
-                quaTmp = new Quaternion(IM::PARAM, tmp, (varStruct *)NULL);
+                // quaTmp = new Quaternion(IM::ASSIGN, str, tmp);
+                // Intermediate::quads->push_back(*quaTmp);
+                quaTmp = new Quaternion(IM::PARAM, str, (varStruct *)NULL);
             }
             Intermediate::quads->push_back(*quaTmp);
         }

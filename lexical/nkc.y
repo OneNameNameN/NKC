@@ -255,21 +255,10 @@ int main(int argc, char **argv)
     cout<<endl<<endl;
     SymbolTable::rootTable->print(0);
     printf("\n");
-    int now = 0;
     for(int i=0;i<Intermediate::quads->size();i++)
     {
-        Quaternion* quaTmp = &(*Intermediate::quads)[i];
-        if (quaTmp->op == IM::ASSIGN && quaTmp->args[1].isVar && quaTmp->args[1].var == NULL 
-            && quaTmp->args[2].isVar && (quaTmp->args[2].var->name.compare(0, 4, "Temp") == 0))
-        {
-            quaTmp->args[2].var->name = quaTmp->args[0].var->name;
-        }
-        else
-        {
-            printf("%d ",now);
-            (*Intermediate::quads)[i].print();
-            now++;
-        }
+        printf("%d ",i);
+        (*Intermediate::quads)[i].print();
     }
 }
 int yyerror(char *s)
