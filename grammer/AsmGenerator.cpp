@@ -1,4 +1,5 @@
 #include "AsmGenerator.h"
+#include <fstream>
 AsmGenerator::AsmGenerator(vector<Quaternion>* quads){
     this->quads = quads;
     for(int i=0;i<4;i++)
@@ -6,7 +7,10 @@ AsmGenerator::AsmGenerator(vector<Quaternion>* quads){
 }
 
 void AsmGenerator::out(string message) {
-    cout<<message;
+    ofstream s;
+    s.open("target.asm",ios::app);
+    s<<message;
+    s.close();
 }
 
 string AsmGenerator::getReg(varStruct* target) {
@@ -41,9 +45,13 @@ string AsmGenerator::getVarName(varStruct* var,bool address){
     }
 }
 void AsmGenerator::generate() {
+    ofstream s;
+    s.open("target.asm",ios::out);
+    s.close();
     out("%include \"io.inc\"\n");
     generateData();
     generateText();
+    system("nasm target.asm -f win32 && gcc target.obj -o program -m32");
 }
 
 void AsmGenerator::generateData() {
