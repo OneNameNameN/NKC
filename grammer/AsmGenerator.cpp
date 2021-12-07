@@ -59,12 +59,12 @@ void AsmGenerator::generateData() {
         while(iter != now->varTable.end()){
             if (iter->second != nullptr)
             {
-                out(iter->second->name+to_string((iter->second->address))+" dd 0");
+                string describe="";
                 if(iter->second->describe){
-                    for(int i=0;i<iter->second->describe-1;i++){
-                        out(",0");
-                    }
+                    describe = " times ";
+                    describe += to_string(iter->second->describe);
                 }
+                out(iter->second->name+to_string((iter->second->address))+describe+" dd 0");
                 out("\n");
                 iter->second->isTemp = false;
             }
@@ -74,7 +74,7 @@ void AsmGenerator::generateData() {
             tableStack.push(table);
         }
     }
-    out("temp dd 0\n");
+    out("temp times 128 dd 0\n");
 }
 
 void AsmGenerator::generateText() {
@@ -513,14 +513,39 @@ void AsmGenerator::generateParam(Quaternion *quad) {
         if(quad->args[0].var->isTemp){
             if(quad->args[0].var->type == "STRING"){
                 string str = quad->args[0].var->name;
-                int length = str.length();
-                str = str.substr(1,length-2);
-                for(int i=0;i<length-2;i+=4){
-                    out("mov "+ getReg(nullptr)+",\""+str.substr(i,4)+"\"\n");
-                    out("mov [temp+"+to_string(i)+"],"+ getReg(nullptr)+"\n");
+                str = str.substr(1,str.length()-2);
+                int number=0;
+                int sum=0;
+                string regName = getReg(nullptr);
+                string temp="";
+                for(int i=0;i<str.length();i++){
+                    if(str[i]=='\\'){
+                        if(i+1<str.length()&&str[i+1]=='n'){
+                            out("mov "+regName+",\""+temp+"\"\n");
+                            out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                            sum+=number;
+                            temp="";
+                            number=0;
+
+                            i++;
+                            out("mov "+regName+",10\n");
+                            out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                            sum+=1;
+                            continue;
+                        }
+                    }
+                    number++;
+                    temp+=str[i];
+                    if(number==4||i==str.length()-1){
+                        out("mov "+regName+",\""+temp+"\"\n");
+                        out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                        sum+=number;
+                        temp="";
+                        number=0;
+                    }
                 }
-                out("mov "+ getReg(nullptr)+","+"0"+"\n");
-                out("mov [temp+"+to_string(length-2)+"],"+ getReg(nullptr)+"\n");
+                out("mov "+regName+",0\n");
+                out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
                 out("push temp\n");
             }else{
                 out("push "+ getVarName(quad->args[0].var, false)+"\n");
