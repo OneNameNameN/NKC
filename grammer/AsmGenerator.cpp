@@ -91,7 +91,8 @@ void AsmGenerator::generateText() {
         "extern scanf\n"
         "global CMAIN\n"
         "CMAIN:\n");
-    for(int i=0;i<quads->size();i++){
+    int i;
+    for(i=0;i<quads->size();i++){
         out("_Quad#"+to_string(i)+":\n");
         switch (quads->at(i).op) {
             case IM::DEFINE:break;
@@ -137,11 +138,12 @@ void AsmGenerator::generateText() {
                 break;
             }
             case IM::RET:
+                out("ret\n");
                 break;
             default:break;
         }
     }
-    out("ret\n");
+    out("_Quad#"+ to_string(i)+":\n");
 }
 
 void AsmGenerator::generateAssign(Quaternion *quad) {
