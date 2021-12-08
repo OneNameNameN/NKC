@@ -1,0 +1,14 @@
+.DS_Store
+.idea
+.vscode
+lex.yy.c
+nkc.tab.h
+nkc.tab.c
+nkc.exe
+m4.exe
+nkc
+CMakeLists.txt
+cmake-build-debug
+program.exe
+target.asm
+target.obj
