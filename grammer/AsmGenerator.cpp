@@ -393,7 +393,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             if(quad->args[1].var->type == "Literal"){
                 out("mov dl,"+quad->args[1].var->name+"\n");
             }else{
-                out("mov dl,"+ getVarName(quad->args[1].var, false)+"\n");
+                if(quad->args[1].var->isTemp){
+                    out("mov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("mov dl,[temp]\n");
+                }else{
+                    out("mov dl,"+ getVarName(quad->args[1].var, false)+"\n");
+                }
             }
         } else{
             out("mov dl,"+to_string(quad->args[1].literal)+"\n");
@@ -436,7 +441,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             if(quad->args[0].var->type=="Literal") {
                 out("mov ax,"+quad->args[0].var->name+"\n");
             }else{
-                out("mov ax,"+ getVarName(quad->args[0].var, false)+"\n");
+                if(quad->args[0].var->isTemp){
+                    out("mov [temp],"+ getVarName(quad->args[0].var, false)+"\n");
+                    out("mov ax,[temp]\n");
+                }else {
+                    out("mov ax,"+ getVarName(quad->args[0].var, false)+"\n");
+                }
             }
         }else{
             out("mov ax,"+to_string(quad->args[0].literal)+"\n");
@@ -448,7 +458,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             if(quad->args[1].var->type=="Literal") {
                 out("mov ax,"+quad->args[1].var->name+"\n");
             }else{
-                out("mov ax,"+ getVarName(quad->args[1].var, false)+"\n");
+                if(quad->args[1].var->isTemp){
+                    out("mov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("mov ax,[temp]\n");
+                }else {
+                    out("mov ax,"+ getVarName(quad->args[1].var, false)+"\n");
+                }
             }
         }else{
             out("mov ax,"+to_string(quad->args[1].literal)+"\n");
