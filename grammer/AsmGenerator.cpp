@@ -342,7 +342,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         } else{
             out("mov dl,"+to_string(quad->args[1].literal)+"\n");
         }
-        out("div dl\n");
+        out("cmp dl,0x00\n");
+        out("jge _NEG#"+to_string(int(quad))+"\n");
+        out("neg dl\n");
+        out("neg eax\n");
+        out("_NEG#"+to_string(int(quad))+":\n");
+        out("idiv dl\n");
         if(quad->op==IM::MOD){out("shr eax,8\n");}
         else{out("shr ah,8\n");}
         out("mov "+ getVarName(quad->args[2].var, false)+",eax\n");
@@ -403,7 +408,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         } else{
             out("mov dl,"+to_string(quad->args[1].literal)+"\n");
         }
-        out("mul dl\n");
+        out("cmp dl,0x00\n");
+        out("jge _NEG#"+to_string(int(quad))+"\n");
+        out("neg dl\n");
+        out("neg eax\n");
+        out("_NEG#"+to_string(int(quad))+":\n");
+        out("imul dl\n");
         out("mov "+ getVarName(quad->args[2].var, false)+",eax\n");
         return;
     }
@@ -425,7 +435,11 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             out("mov eax,"+to_string(quad->args[0].literal)+"\n");
         }
         out("cmp eax,0x00000000\n");
+        out("mov eax,0x00000000\n");
+        out("mov [temp],eax\n");
         out("sete al\n");
+        out("mov [temp],al\n");
+        out("mov eax,[temp]\n");
         reg[0]=quad->args[2].var;
         return;
     }
@@ -477,10 +491,12 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             out("or eax 0x00000000\n");
         }
 
-        out("cmp eax,0x00000000\n"
-            "setne al\n"
-            "mov [temp],al\n"
-            "mov eax,[temp]\n");
+        out("cmp eax,0x00000000\n");
+        out("mov eax,0x00000000\n");
+        out("mov [temp],eax\n");
+        out("setne al\n");
+        out("mov [temp],al\n");
+        out("mov eax,[temp]\n");
         reg[0] = quad->args[2].var;
         return;
     }
