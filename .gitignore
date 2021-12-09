@@ -9,3 +9,6 @@ m4.exe
 nkc
 CMakeLists.txt
 cmake-build-debug
+program.exe
+target.asm
+target.obj

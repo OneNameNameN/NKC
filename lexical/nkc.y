@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include "../grammer/Node/Node.h"
     #include "../grammer/Intermediate/Intermediate.h"
-
+    #include "../grammer/AsmGenerator.h"
     int yylex();
     int yyerror(char *);
     // struct ast* root;
@@ -260,6 +260,9 @@ int main(int argc, char **argv)
         printf("%d ",i);
         (*Intermediate::quads)[i].print();
     }
+    printf("\n");
+    AsmGenerator* asmGenerator = new AsmGenerator(Intermediate::quads);
+    asmGenerator->generate();
 }
 int yyerror(char *s)
 {

@@ -13,6 +13,7 @@ public:
     int describe;
     int address;
     int length;
+    bool isTemp = true;
     varStruct(string n,string type,int m,int d,int adr,int len);
 };
 
