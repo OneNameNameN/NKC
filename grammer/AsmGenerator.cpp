@@ -40,8 +40,8 @@ string AsmGenerator::getVarName(varStruct* var,bool address){
         return ret;
     }
     else {
-        if(address)return var->name+to_string(var->address);
-        else return "["+var->name+to_string(var->address)+"]";
+        if(address)return var->name+"_"+to_string(var->address);
+        else return "["+var->name+"_"+to_string(var->address)+"]";
     }
 }
 void AsmGenerator::generate() {
@@ -72,7 +72,7 @@ void AsmGenerator::generateData() {
                     describe = " times ";
                     describe += to_string(iter->second->describe);
                 }
-                out(iter->second->name+to_string((iter->second->address))+describe+" dd 0");
+                out(iter->second->name+"_"+to_string((iter->second->address))+describe+" dd 0");
                 out("\n");
                 iter->second->isTemp = false;
             }
@@ -177,7 +177,7 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
         } else{
             out("mov "+value+","+to_string(quad->args[0].literal)+"\n");
         }
-        out("mov ["+quad->args[2].var->name+to_string(quad->args[2].var->address)+"+4*"+index+"],"+value+"\n");
+        out("mov ["+quad->args[2].var->name+"_"+to_string(quad->args[2].var->address)+"+4*"+index+"],"+value+"\n");
         return;
     }
 
@@ -236,7 +236,7 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
             } else{
                 index = to_string(quad->args[1].literal);
             }
-            out("mov "+name+",["+quad->args[0].var->name+to_string(quad->args[0].var->address)+"+4*"+index+"]\n");
+            out("mov "+name+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]\n");
         }
     } else{
         out("mov "+name+",");
@@ -612,7 +612,7 @@ void AsmGenerator::generateParam(Quaternion *quad) {
                 } else{
                     index = to_string(quad->args[1].literal);
                 }
-                out("mov "+getReg(nullptr)+",["+quad->args[0].var->name+to_string(quad->args[0].var->address)+"+4*"+index+"]"+"\n");
+                out("mov "+getReg(nullptr)+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]"+"\n");
                 out("push "+getReg(nullptr)+"\n");
             }
         }
