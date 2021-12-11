@@ -247,14 +247,22 @@ argument_expression_list: expression{
 
 int main(int argc, char **argv)
 {
-    yyin = fopen("../test/base.cpp", "r");
+    yyin = fopen(argv[1], "r");
+    if(yyin == NULL)
+        yyin = fopen("../test/base.cpp", "r");
     yyparse();
     fclose(yyin);
+
+    cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Abstract Syntex Tree:" << endl;
     root->print(0);
+
+    cout << endl << endl;
+    cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Symbol Table:" << endl;
     root->createSymbolTable(true);
-    cout<<endl<<endl;
     SymbolTable::rootTable->print(0);
-    printf("\n");
+    
+    cout << endl << endl;
+    cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Intermediate Code:" << endl;
     for(int i=0;i<Intermediate::quads->size();i++)
     {
         printf("%d ",i);
@@ -263,6 +271,7 @@ int main(int argc, char **argv)
     printf("\n");
     AsmGenerator* asmGenerator = new AsmGenerator(Intermediate::quads);
     asmGenerator->generate();
+    cout << "Complete!" << endl;
 }
 int yyerror(char *s)
 {
