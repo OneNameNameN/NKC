@@ -1,5 +1,6 @@
 #include "AsmGenerator.h"
 #include <fstream>
+#include <cstdint>
 AsmGenerator::AsmGenerator(vector<Quaternion>* quads){
     this->quads = quads;
     for(int i=0;i<4;i++)
@@ -72,6 +73,7 @@ void AsmGenerator::generateData() {
                     describe = " times ";
                     describe += to_string(iter->second->describe);
                 }
+                out("\t");
                 out(iter->second->name+"_"+to_string((iter->second->address))+describe+" dd 0");
                 out("\n");
                 iter->second->isTemp = false;
@@ -82,14 +84,13 @@ void AsmGenerator::generateData() {
             tableStack.push(table);
         }
     }
-    out("temp times 128 dd 0\n");
+    out("\ttemp times 128 dd 0\n");
 }
 
 void AsmGenerator::generateText() {
     out("section .text\n"
-        "extern printf\n"
-        "extern scanf\n"
-        "global CMAIN\n"
+        "\tglobal CMAIN\n"
+        "; <_Quad#i> corresponds to line(i) in InterMediate Code(Quaternion)\n"
         "CMAIN:\n");
     int i;
     for(i=0;i<quads->size();i++){
@@ -112,7 +113,7 @@ void AsmGenerator::generateText() {
                 generateJump(&quads->at(i));
                 break;
             case IM::GET_ADDRESS:
-                out("mov "+getVarName(quads->at(i).args[2].var, false)+","+ getVarName(quads->at(i).args[0].var,true)+"\n");
+                out("\tmov "+getVarName(quads->at(i).args[2].var, false)+","+ getVarName(quads->at(i).args[0].var,true)+"\n");
                 break;
             case IM::PARAM:
                 generateParam(&quads->at(i));
@@ -133,12 +134,12 @@ void AsmGenerator::generateText() {
             case IM::GET_VALUE:
             {
                 string name = getVarName(quads->at(i).args[2].var, false);
-                out("mov "+name+","+ getVarName(quads->at(i).args[0].var,false)+"\n");
-                out("mov "+name+",["+name+"]\n");
+                out("\tmov "+name+","+ getVarName(quads->at(i).args[0].var,false)+"\n");
+                out("\tmov "+name+",["+name+"]\n");
                 break;
             }
             case IM::RET:
-                out("ret\n");
+                out("\tret\n");
                 break;
             default:break;
         }
@@ -157,7 +158,7 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
                     index = getVarName(quad->args[1].var, false);
                 } else{
                     index = getReg(nullptr);
-                    out("mov "+index+","+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov "+index+","+ getVarName(quad->args[1].var, false)+"\n");
                 }
             }
         } else{
@@ -166,39 +167,39 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
         string value = "edx";
         if(quad->args[0].isVar){
             if(quad->args[0].var->type == "Literal"){
-                out("mov "+value+","+quad->args[0].var->name+"\n");
+                out("\tmov "+value+","+quad->args[0].var->name+"\n");
             }else{
                 if(quad->args[0].var->isTemp){
                     value = getVarName(quad->args[0].var, false);
                 } else{
-                    out("mov "+value+","+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov "+value+","+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         } else{
-            out("mov "+value+","+to_string(quad->args[0].literal)+"\n");
+            out("\tmov "+value+","+to_string(quad->args[0].literal)+"\n");
         }
-        out("mov ["+quad->args[2].var->name+"_"+to_string(quad->args[2].var->address)+"+4*"+index+"],"+value+"\n");
+        out("\tmov ["+quad->args[2].var->name+"_"+to_string(quad->args[2].var->address)+"+4*"+index+"],"+value+"\n");
         return;
     }
 
     if(quad->op==IM::ASSIGN_VALUE){
         string name = getReg(nullptr);
         string target = "edx";
-        out("mov "+name+","+ getVarName(quad->args[2].var, false)+"\n");
+        out("\tmov "+name+","+ getVarName(quad->args[2].var, false)+"\n");
         if(quad->args[0].isVar){
             if(quad->args[0].var->type=="Literal"){
-                out("mov "+target+","+quad->args[0].var->name+"\n");
+                out("\tmov "+target+","+quad->args[0].var->name+"\n");
             }else{
                 if(quad->args[0].var->isTemp){
                     target = getVarName(quad->args[0].var, false);
                 } else{
-                    out("mov "+target+","+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov "+target+","+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         }else{
-            out("mov "+target+","+to_string(quad->args[0].literal)+"\n");
+            out("\tmov "+target+","+to_string(quad->args[0].literal)+"\n");
         }
-        out("mov ["+name+"],"+target+"\n");
+        out("\tmov ["+name+"],"+target+"\n");
         return;
     }
 
@@ -206,10 +207,10 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
     if(quad->args[0].isVar&&quad->args[0].var->isTemp){
         if(quad->args[0].var->type=="Literal"){
             string name = getReg(nullptr);
-            out("mov "+name+","+ quad->args[0].var->name+"\n");
-            out("mov "+ getVarName(quad->args[2].var, false)+","+ name+"\n");
+            out("\tmov "+name+","+ quad->args[0].var->name+"\n");
+            out("\tmov "+ getVarName(quad->args[2].var, false)+","+ name+"\n");
         } else{
-            out("mov "+getVarName(quad->args[2].var, false)+","+ getVarName(quad->args[0].var, false)+"\n");
+            out("\tmov "+getVarName(quad->args[2].var, false)+","+ getVarName(quad->args[0].var, false)+"\n");
         }
         return;
     }
@@ -217,7 +218,7 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
     string name = getReg(nullptr);
     if(quad->args[0].isVar){
         if(quad->args[1].isVar&&!quad->args[1].var){
-            out("mov "+name+",");
+            out("\tmov "+name+",");
             out(getVarName(quad->args[0].var, false)+"\n");
         }else{
             // 确定是数组赋值
@@ -230,19 +231,19 @@ void AsmGenerator::generateAssign(Quaternion *quad) {
                         index = getVarName(quad->args[1].var, false);
                     } else{
                         index = "edx";
-                        out("mov edx,"+ getVarName(quad->args[1].var, false)+"\n");
+                        out("\tmov edx,"+ getVarName(quad->args[1].var, false)+"\n");
                     }
                 }
             } else{
                 index = to_string(quad->args[1].literal);
             }
-            out("mov "+name+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]\n");
+            out("\tmov "+name+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]\n");
         }
     } else{
-        out("mov "+name+",");
+        out("\tmov "+name+",");
         out(to_string(quad->args[0].literal)+"\n");
     }
-    out("mov ");
+    out("\tmov ");
     out(getVarName(quad->args[2].var, false)+",");
     out(name+"\n");
 }
@@ -253,22 +254,22 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         if(quad->args[0].isVar){
             if(quad->args[0].var->type=="Literal"){
                 name = getReg(nullptr);
-                out("mov "+name+","+ quad->args[0].var->name+"\n");
+                out("\tmov "+name+","+ quad->args[0].var->name+"\n");
             } else{
                 if(quad->args[0].var->isTemp){
                     name = getVarName(quad->args[0].var, false);
                 } else{
                     name = getReg(nullptr);
-                    out("mov "+name+","+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov "+name+","+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         } else{
             name = getReg(nullptr);
-            out("mov "+name+","+to_string(quad->args[0].literal)+"\n");
+            out("\tmov "+name+","+to_string(quad->args[0].literal)+"\n");
         }
         string op;
-        if(quad->op==IM::MINUS){op="sub";}
-        else{op="add";}
+        if(quad->op==IM::MINUS){op="\tsub";}
+        else{op="\tadd";}
         if(quad->args[1].isVar){
             if(quad->args[1].var->type == "Literal"){
                 out(op+" "+name+","+ quad->args[1].var->name+"\n");
@@ -278,7 +279,7 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         } else{
             out(op+" "+name+","+to_string(quad->args[1].literal)+"\n");
         }
-        out("mov "+ getVarName(quad->args[2].var, false)+","+name+"\n");
+        out("\tmov "+ getVarName(quad->args[2].var, false)+","+name+"\n");
         return;
     }
 
@@ -296,27 +297,27 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
                 if(index[name]!=0&&reg[0]!= nullptr){
                     reg[index[name]]=reg[0];
                     reg[0]= nullptr;
-                    out("mov "+name+",eax\n");
+                    out("\tmov "+name+",eax\n");
                 }
-                out("mov eax,"+ quad->args[0].var->name+"\n");
+                out("\tmov eax,"+ quad->args[0].var->name+"\n");
             } else{
                 if(quad->args[0].var->isTemp){
                     name = getVarName(quad->args[0].var, false);
                     if(index[name]!=0&&reg[0]!= nullptr){
                         reg[index[name]]=reg[0];
                         reg[0]= nullptr;
-                        out("mov [temp],eax\n");
-                        out("mov eax,"+name+"\n");
-                        out("mov "+name+",[temp]\n");
+                        out("\tmov [temp],eax\n");
+                        out("\tmov eax,"+name+"\n");
+                        out("\tmov "+name+",[temp]\n");
                     }
                 } else{
                     name = getReg(nullptr);
                     if(index[name]!=0&&reg[0]!= nullptr){
                         reg[index[name]]=reg[0];
                         reg[0]= nullptr;
-                        out("mov "+name+",eax\n");
+                        out("\tmov "+name+",eax\n");
                     }
-                    out("mov eax,"+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov eax,"+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         } else{
@@ -324,33 +325,33 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             if(index[name]!=0&&reg[0]!= nullptr){
                 reg[index[name]]=reg[0];
                 reg[0]= nullptr;
-                out("mov "+name+",eax\n");
+                out("\tmov "+name+",eax\n");
             }
-            out("mov eax,"+to_string(quad->args[0].literal)+"\n");
+            out("\tmov eax,"+to_string(quad->args[0].literal)+"\n");
         }
         if(quad->args[1].isVar){
             if(quad->args[1].var->type == "Literal"){
-                out("mov dl,"+quad->args[1].var->name+"\n");
+                out("\tmov dl,"+quad->args[1].var->name+"\n");
             }else{
                 if(quad->args[1].var->isTemp){
-                    out("mov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
-                    out("mov dl,[temp]\n");
+                    out("\tmov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov dl,[temp]\n");
                 }else{
-                    out("mov dl,"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov dl,"+ getVarName(quad->args[1].var, false)+"\n");
                 }
             }
         } else{
-            out("mov dl,"+to_string(quad->args[1].literal)+"\n");
+            out("\tmov dl,"+to_string(quad->args[1].literal)+"\n");
         }
-        out("cmp dl,0x00\n");
-        out("jge _NEG#"+to_string(int(quad))+"\n");
-        out("neg dl\n");
-        out("neg eax\n");
-        out("_NEG#"+to_string(int(quad))+":\n");
-        out("idiv dl\n");
-        if(quad->op==IM::MOD){out("shr eax,8\n");}
-        else{out("shr ah,8\n");}
-        out("mov "+ getVarName(quad->args[2].var, false)+",eax\n");
+        out("\tcmp dl,0x00\n");
+        out("\tjge _NEG#"+to_string(intptr_t(quad))+"\n");
+        out("\tneg dl\n");
+        out("\tneg eax\n");
+        out("_NEG#"+to_string(intptr_t(quad))+":\n");
+        out("\tidiv dl\n");
+        if(quad->op==IM::MOD){out("\tshr eax,8\n");}
+        else{out("\tshr ah,8\n");}
+        out("\tmov "+ getVarName(quad->args[2].var, false)+",eax\n");
         return;
     }
 
@@ -362,27 +363,27 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
                 if(index[name]!=0&&reg[0]!= nullptr){
                     reg[index[name]]=reg[0];
                     reg[0]= nullptr;
-                    out("mov "+name+",eax\n");
+                    out("\tmov "+name+",eax\n");
                 }
-                out("mov eax,"+ quad->args[0].var->name+"\n");
+                out("\tmov eax,"+ quad->args[0].var->name+"\n");
             } else{
                 if(quad->args[0].var->isTemp){
                     name = getVarName(quad->args[0].var, false);
                     if(index[name]!=0&&reg[0]!= nullptr){
                         reg[index[name]]=reg[0];
                         reg[0]= nullptr;
-                        out("mov [temp],eax\n");
-                        out("mov eax,"+name+"\n");
-                        out("mov "+name+",[temp]\n");
+                        out("\tmov [temp],eax\n");
+                        out("\tmov eax,"+name+"\n");
+                        out("\tmov "+name+",[temp]\n");
                     }
                 } else{
                     name = getReg(nullptr);
                     if(index[name]!=0&&reg[0]!= nullptr){
                         reg[index[name]]=reg[0];
                         reg[0]= nullptr;
-                        out("mov "+name+",eax\n");
+                        out("\tmov "+name+",eax\n");
                     }
-                    out("mov eax,"+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov eax,"+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         } else{
@@ -390,31 +391,31 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             if(index[name]!=0&&reg[0]!= nullptr){
                 reg[index[name]]=reg[0];
                 reg[0]= nullptr;
-                out("mov "+name+",eax\n");
+                out("\tmov "+name+",eax\n");
             }
-            out("mov eax,"+to_string(quad->args[0].literal)+"\n");
+            out("\tmov eax,"+to_string(quad->args[0].literal)+"\n");
         }
         if(quad->args[1].isVar){
             if(quad->args[1].var->type == "Literal"){
-                out("mov dl,"+quad->args[1].var->name+"\n");
+                out("\tmov dl,"+quad->args[1].var->name+"\n");
             }else{
                 if(quad->args[1].var->isTemp){
-                    out("mov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
-                    out("mov dl,[temp]\n");
+                    out("\tmov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov dl,[temp]\n");
                 }else{
-                    out("mov dl,"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov dl,"+ getVarName(quad->args[1].var, false)+"\n");
                 }
             }
         } else{
-            out("mov dl,"+to_string(quad->args[1].literal)+"\n");
+            out("\tmov dl,"+to_string(quad->args[1].literal)+"\n");
         }
-        out("cmp dl,0x00\n");
-        out("jge _NEG#"+to_string(int(quad))+"\n");
-        out("neg dl\n");
-        out("neg eax\n");
-        out("_NEG#"+to_string(int(quad))+":\n");
-        out("imul dl\n");
-        out("mov "+ getVarName(quad->args[2].var, false)+",eax\n");
+        out("\tcmp dl,0x00\n");
+        out("\tjge _NEG#"+to_string(intptr_t(quad))+"\n");
+        out("\tneg dl\n");
+        out("\tneg eax\n");
+        out("_NEG#"+to_string(intptr_t(quad))+":\n");
+        out("\timul dl\n");
+        out("\tmov "+ getVarName(quad->args[2].var, false)+",eax\n");
         return;
     }
 
@@ -423,23 +424,23 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         if(index[name]!=0){
             reg[index[name]]=reg[0];
             reg[0] = nullptr;
-            out("mov "+name+",eax\n");
+            out("\tmov "+name+",eax\n");
         }
         if(quad->args[0].isVar){
             if(quad->args[0].var->type=="Literal") {
-                out("mov eax,"+quad->args[0].var->name+"\n");
+                out("\tmov eax,"+quad->args[0].var->name+"\n");
             }else{
-                out("mov eax,"+ getVarName(quad->args[0].var, false)+"\n");
+                out("\tmov eax,"+ getVarName(quad->args[0].var, false)+"\n");
             }
         }else{
-            out("mov eax,"+to_string(quad->args[0].literal)+"\n");
+            out("\tmov eax,"+to_string(quad->args[0].literal)+"\n");
         }
-        out("cmp eax,0x00000000\n");
-        out("mov eax,0x00000000\n");
-        out("mov [temp],eax\n");
-        out("sete al\n");
-        out("mov [temp],al\n");
-        out("mov eax,[temp]\n");
+        out("\tcmp eax,0x00000000\n");
+        out("\tmov eax,0x00000000\n");
+        out("\tmov [temp],eax\n");
+        out("\tsete al\n");
+        out("\tmov [temp],al\n");
+        out("\tmov eax,[temp]\n");
         reg[0]=quad->args[2].var;
         return;
     }
@@ -449,54 +450,54 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
         if(index[name]!=0){
             reg[index[name]]=reg[0];
             reg[0] = nullptr;
-            out("mov "+name+",eax\n");
+            out("\tmov "+name+",eax\n");
         }
         if(quad->args[0].isVar){
             if(quad->args[0].var->type=="Literal") {
-                out("mov ax,"+quad->args[0].var->name+"\n");
+                out("\tmov ax,"+quad->args[0].var->name+"\n");
             }else{
                 if(quad->args[0].var->isTemp){
-                    out("mov [temp],"+ getVarName(quad->args[0].var, false)+"\n");
-                    out("mov ax,[temp]\n");
+                    out("\tmov [temp],"+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov ax,[temp]\n");
                 }else {
-                    out("mov ax,"+ getVarName(quad->args[0].var, false)+"\n");
+                    out("\tmov ax,"+ getVarName(quad->args[0].var, false)+"\n");
                 }
             }
         }else{
-            out("mov ax,"+to_string(quad->args[0].literal)+"\n");
+            out("\tmov ax,"+to_string(quad->args[0].literal)+"\n");
         }
-        out("cmp ax,0x00000000\n"
-            "setne al\n"
-            "shl eax,16\n");
+        out("\tcmp ax,0x00000000\n"
+            "\tsetne al\n"
+            "\tshl eax,16\n");
         if(quad->args[1].isVar){
             if(quad->args[1].var->type=="Literal") {
-                out("mov ax,"+quad->args[1].var->name+"\n");
+                out("\tmov ax,"+quad->args[1].var->name+"\n");
             }else{
                 if(quad->args[1].var->isTemp){
-                    out("mov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
-                    out("mov ax,[temp]\n");
+                    out("\tmov [temp],"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov ax,[temp]\n");
                 }else {
-                    out("mov ax,"+ getVarName(quad->args[1].var, false)+"\n");
+                    out("\tmov ax,"+ getVarName(quad->args[1].var, false)+"\n");
                 }
             }
         }else{
-            out("mov ax,"+to_string(quad->args[1].literal)+"\n");
+            out("\tmov ax,"+to_string(quad->args[1].literal)+"\n");
         }
-        out("cmp ax,0x00000000\n"
-            "setne al\n");
+        out("\tcmp ax,0x00000000\n"
+            "\tsetne al\n");
 
         if(quad->op==IM::LOGIC_AND){
-            out("and eax 0x00010001\n");
+            out("\tand eax 0x00010001\n");
         }else{
-            out("or eax 0x00000000\n");
+            out("\tor eax 0x00000000\n");
         }
 
-        out("cmp eax,0x00000000\n");
-        out("mov eax,0x00000000\n");
-        out("mov [temp],eax\n");
-        out("setne al\n");
-        out("mov [temp],al\n");
-        out("mov eax,[temp]\n");
+        out("\tcmp eax,0x00000000\n");
+        out("\tmov eax,0x00000000\n");
+        out("\tmov [temp],eax\n");
+        out("\tsetne al\n");
+        out("\tmov [temp],al\n");
+        out("\tmov eax,[temp]\n");
         reg[0] = quad->args[2].var;
         return;
     }
@@ -504,49 +505,49 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
 
 void AsmGenerator::generateJump(Quaternion *quad) {
     if(quad->op==IM::JUMP){
-        out("jmp "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+        out("\tjmp "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
         return;
     }
     string name = getReg(nullptr);
     if(quad->args[0].isVar){
         if(quad->args[0].var->type!="Literal"){
-            out("mov "+ name+","+ getVarName(quad->args[0].var, false)+"\n");
+            out("\tmov "+ name+","+ getVarName(quad->args[0].var, false)+"\n");
         }else{
-            out("mov "+ name+","+ quad->args[0].var->name+"\n");
+            out("\tmov "+ name+","+ quad->args[0].var->name+"\n");
         }
     }else{
-        out("mov "+ name+","+to_string(quad->args[0].literal)+"\n");
+        out("\tmov "+ name+","+to_string(quad->args[0].literal)+"\n");
     }
     if(quad->args[1].isVar){
         if(quad->args[0].var->type!="Literal"){
-            out("mov edx,"+ getVarName(quad->args[1].var, false)+"\n");
+            out("\tmov edx,"+ getVarName(quad->args[1].var, false)+"\n");
         }else{
-            out("mov edx,"+quad->args[1].var->name+"\n");
+            out("\tmov edx,"+quad->args[1].var->name+"\n");
         }
     } else{
-        out("mov edx,"+to_string(quad->args[1].literal)+"\n");
+        out("\tmov edx,"+to_string(quad->args[1].literal)+"\n");
     }
-    out("cmp "+ name+",edx\n");
+    out("\tcmp "+ name+",edx\n");
     switch (quad->op) {
         case IM::JUMP_EQUAL:
-            out("je "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tje "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
         case IM::JUMP_NOT_EQUAL:
-            out("jne "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tjne "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
         case IM::JUMP_GREAT:
-            out("jg "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tjg "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
         case IM::JUMP_SMALL:
-            out("jl "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tjl "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
         case IM::JUMP_EQ_GREAT:
-            out("jge "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tjge "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
         case IM::JUMP_EQ_SMALL:
-            out("jle "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
+            out("\tjle "+("_Quad#"+to_string(quad->args[2].literal))+"\n");
             break;
-        default:out("ERROR");break;
+        default:out("\tERROR");break;
     }
 }
 void AsmGenerator::generateParam(Quaternion *quad) {
@@ -562,15 +563,15 @@ void AsmGenerator::generateParam(Quaternion *quad) {
                 for(int i=0;i<str.length();i++){
                     if(str[i]=='\\'){
                         if(i+1<str.length()&&str[i+1]=='n'){
-                            out("mov "+regName+",\""+temp+"\"\n");
-                            out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                            out("\tmov "+regName+",\""+temp+"\"\n");
+                            out("\tmov [temp+"+to_string(sum)+"],"+regName+"\n");
                             sum+=number;
                             temp="";
                             number=0;
 
                             i++;
-                            out("mov "+regName+",10\n");
-                            out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                            out("\tmov "+regName+",10\n");
+                            out("\tmov [temp+"+to_string(sum)+"],"+regName+"\n");
                             sum+=1;
                             continue;
                         }
@@ -578,23 +579,23 @@ void AsmGenerator::generateParam(Quaternion *quad) {
                     number++;
                     temp+=str[i];
                     if(number==4||i==str.length()-1){
-                        out("mov "+regName+",\""+temp+"\"\n");
-                        out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
+                        out("\tmov "+regName+",\""+temp+"\"\n");
+                        out("\tmov [temp+"+to_string(sum)+"],"+regName+"\n");
                         sum+=number;
                         temp="";
                         number=0;
                     }
                 }
-                out("mov "+regName+",0\n");
-                out("mov [temp+"+to_string(sum)+"],"+regName+"\n");
-                out("push temp\n");
+                out("\tmov "+regName+",0\n");
+                out("\tmov [temp+"+to_string(sum)+"],"+regName+"\n");
+                out("\tpush temp\n");
             }else{
-                out("push "+ getVarName(quad->args[0].var, false)+"\n");
+                out("\tpush "+ getVarName(quad->args[0].var, false)+"\n");
             }
         } else{
             if(quad->args[1].isVar&&!quad->args[1].var){
-                out("mov "+getReg(nullptr)+","+ getVarName(quad->args[0].var, false)+"\n");
-                out("push "+getReg(nullptr)+"\n");
+                out("\tmov "+getReg(nullptr)+","+ getVarName(quad->args[0].var, false)+"\n");
+                out("\tpush "+getReg(nullptr)+"\n");
             }else{
                 // 找出index
                 string index;
@@ -606,22 +607,22 @@ void AsmGenerator::generateParam(Quaternion *quad) {
                             index = getVarName(quad->args[1].var, false);
                         } else{
                             index = getReg(nullptr);
-                            out("mov "+index+","+ getVarName(quad->args[1].var, false)+"\n");
+                            out("\tmov "+index+","+ getVarName(quad->args[1].var, false)+"\n");
                         }
                     }
                 } else{
                     index = to_string(quad->args[1].literal);
                 }
-                out("mov "+getReg(nullptr)+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]"+"\n");
-                out("push "+getReg(nullptr)+"\n");
+                out("\tmov "+getReg(nullptr)+",["+quad->args[0].var->name+"_"+to_string(quad->args[0].var->address)+"+4*"+index+"]"+"\n");
+                out("\tpush "+getReg(nullptr)+"\n");
             }
         }
     }else{
-        out("push "+ to_string(quad->args[0].literal)+"\n");
+        out("\tpush "+ to_string(quad->args[0].literal)+"\n");
     }
 }
 
 void AsmGenerator::generateCall(Quaternion *quad) {
-    out("call "+quad->args[0].var->name+"\n");
-    out("add esp,"+to_string(quad->args[1].literal*4)+"\n");
+    out("\tcall "+quad->args[0].var->name+"\n");
+    out("\tadd esp,"+to_string(quad->args[1].literal*4)+"\n");
 }
