@@ -13,8 +13,9 @@
 
 1. 进入/lexical目录
 2. make(linux) mingw32-make(windows)
-3. nkc>result.txt可在result.txt看到分析结果
-4. /lexical目录下target.asm为目标汇编代码，program.exe为目标程序
+3. 使用`nkc`命令来编译指定的文件，如：`nkc ../test/ex1.c`
+4. nkc>result.txt可在result.txt看到分析结果
+5. /lexical目录下target.asm为目标汇编代码，program.exe为目标程序
 
 ## 注意事项
 
