@@ -47,7 +47,17 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
     Intermediate::backPatch(&Judge_true,start);
 
     SymbolTable::rootTable->startSpace();
-    if(ifStatementBlock)ifStatementBlock->createSymbolTable(false);
+    if (ifStatementBlock)
+    {
+        if (ifStatementBlock->type == "EXPRESSION")
+        {
+            Intermediate::generateExp((ExpressionNode *)ifStatementBlock);
+        }
+        else
+        {
+            ifStatementBlock->createSymbolTable(false);
+        }
+    }
     SymbolTable::rootTable->endSpace();
     SymbolTable::rootTable->startSpace();
     if(elseStatementBlock)
@@ -57,7 +67,14 @@ void IfElseNode::createSymbolTable(bool needNewSpace) {
         int tempIndex = Intermediate::quads->size() - 1;
         int else_start = Intermediate::quads->size();
 
-        elseStatementBlock->createSymbolTable(false);
+        if (elseStatementBlock->type == "EXPRESSION")
+        {
+            Intermediate::generateExp((ExpressionNode *)elseStatementBlock);
+        }
+        else
+        {
+            elseStatementBlock->createSymbolTable(false);
+        }
 
         Intermediate::backPatch(&Judge_false, else_start);
         int end = Intermediate::quads->size();
