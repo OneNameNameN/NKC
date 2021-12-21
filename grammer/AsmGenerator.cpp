@@ -1,5 +1,6 @@
 #include "AsmGenerator.h"
 #include <fstream>
+#include <cstdint>
 AsmGenerator::AsmGenerator(vector<Quaternion>* quads){
     this->quads = quads;
     for(int i=0;i<4;i++)
@@ -343,10 +344,10 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             out("mov dl,"+to_string(quad->args[1].literal)+"\n");
         }
         out("cmp dl,0x00\n");
-        out("jge _NEG#"+to_string(int(quad))+"\n");
+        out("jge _NEG#"+to_string(intptr_t(quad))+"\n");
         out("neg dl\n");
         out("neg eax\n");
-        out("_NEG#"+to_string(int(quad))+":\n");
+        out("_NEG#"+to_string(intptr_t(quad))+":\n");
         out("idiv dl\n");
         if(quad->op==IM::MOD){out("shr eax,8\n");}
         else{out("shr ah,8\n");}
@@ -409,10 +410,10 @@ void AsmGenerator::generateCalculate(Quaternion *quad) {
             out("mov dl,"+to_string(quad->args[1].literal)+"\n");
         }
         out("cmp dl,0x00\n");
-        out("jge _NEG#"+to_string(int(quad))+"\n");
+        out("jge _NEG#"+to_string(intptr_t(quad))+"\n");
         out("neg dl\n");
         out("neg eax\n");
-        out("_NEG#"+to_string(int(quad))+":\n");
+        out("_NEG#"+to_string(intptr_t(quad))+":\n");
         out("imul dl\n");
         out("mov "+ getVarName(quad->args[2].var, false)+",eax\n");
         return;
