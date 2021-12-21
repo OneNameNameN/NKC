@@ -27,7 +27,15 @@ void WhileNode::createSymbolTable(bool needNewSpace)
     Intermediate::backPatch(&Judge_true, Judge_true.back() + 2); //跳过false jump
 
     SymbolTable::rootTable->startSpace();
-    statementBlockNode->createSymbolTable(false);
+    if (statementBlockNode->type == "EXPRESSION")
+    {
+        Intermediate::generateExp((ExpressionNode *)statementBlockNode);
+    }
+    else
+    {
+        statementBlockNode->createSymbolTable(false);
+    }
+
     SymbolTable::rootTable->endSpace();
 
     Quaternion *temp = new Quaternion(IM::JUMP, start);

@@ -55,6 +55,11 @@ str        \"[^"]*\"
 "]"                                 {return(']');}
 "{"                                 {return('{');}
 "}"                                 {return('}');}
+"+="                                 {return(ADD_E);}
+"-="                                 {return(SUB_E);}
+"*="                                 {return(MUL_E);}
+"/="                                 {return(DIV_E);}
+"%="                                 {return(MOD_E);}
 
 [ \t\v\f\r\n]                       { }
 {int}                               {yylval.s=strdup(yytext);return(NUMBER);}

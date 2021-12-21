@@ -23,6 +23,7 @@
 %left <s> RELOP
 %left <s> '-' '+'
 %left <s> '*' '/' '%'
+%left <s> ADD_E SUB_E MUL_E DIV_E MOD_E
 %left <s> ACC DEC /* 这里仅认为自加自减会出现在变量右侧 */
 %left <s> '^'
 %right <s> '!'
@@ -231,6 +232,36 @@ $$ = new ExpressionNode($1);
 }
 | direct_declarator '=' expression {
 $$ = new ExpressionNode(new AssignNode($1,$3));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
+| direct_declarator ADD_E expression {
+AbstractNode* temp = new ExpressionNode($1);
+AbstractNode* tempExpression = new ExpressionNode(temp,2,$3,"+");
+$$ = new ExpressionNode(new AssignNode($1,tempExpression));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
+| direct_declarator SUB_E expression {
+AbstractNode* temp = new ExpressionNode($1);
+AbstractNode* tempExpression = new ExpressionNode(temp,2,$3,"-");
+$$ = new ExpressionNode(new AssignNode($1,tempExpression));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
+| direct_declarator MUL_E expression {
+AbstractNode* temp = new ExpressionNode($1);
+AbstractNode* tempExpression = new ExpressionNode(temp,2,$3,"*");
+$$ = new ExpressionNode(new AssignNode($1,tempExpression));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
+| direct_declarator DIV_E expression {
+AbstractNode* temp = new ExpressionNode($1);
+AbstractNode* tempExpression = new ExpressionNode(temp,2,$3,"/");
+$$ = new ExpressionNode(new AssignNode($1,tempExpression));
+((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
+}
+| direct_declarator MOD_E expression {
+AbstractNode* temp = new ExpressionNode($1);
+AbstractNode* tempExpression = new ExpressionNode(temp,2,$3,"%");
+$$ = new ExpressionNode(new AssignNode($1,tempExpression));
 ((ExpressionNode*)$$) -> expressionType = ExpressionNode::ExpressionType::Assign;
 }
 ;

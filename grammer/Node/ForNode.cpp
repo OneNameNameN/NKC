@@ -44,9 +44,17 @@ void ForNode::createSymbolTable(bool needNewSpace){
         Intermediate::falseList->pop();
         Intermediate::backPatch(&Judge_true, Judge_true.back() + 2); //跳过false时jump语句,所以加2
     }
-    
-
-    if(statementBlock)statementBlock->createSymbolTable(false);
+    if (statementBlock)
+    {
+        if (statementBlock->type == "EXPRESSION")
+        {
+            Intermediate::generateExp((ExpressionNode *)statementBlock);
+        }
+        else
+        {
+            statementBlock->createSymbolTable(false);
+        }
+    }
     if (action != nullptr)
     {
         Intermediate::generateExp((ExpressionNode*)action);

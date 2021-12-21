@@ -15,7 +15,7 @@ int main() {
     }
     printf("%d\n", result % 100);
 
-    for (int j = 0; j < result % 100 - 1; j++) {
+    for (int j = 0; j < result % 100 - 1; j+=1) {
         for (int k = j + 1; k < result % 100 - 1; k++) {
             /*
             printf("Hello ~: %d", j);
